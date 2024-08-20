@@ -34,14 +34,19 @@ public class Whalesong {
                     if (parts.length == 2) play(map, parts[1]);
                     break;
                 case "hear":
+                    if (parts.length == 2) hear(map, parts[1]);
                     break;
                 case "augment":
+                    if (parts.length == 2) augment(map, parts[1]);
                     break;
                 case "clarify":
+                    if (parts.length == 2) clarify(map, parts[1]);
                     break;
                 case "normalise":
+                    if (parts.length == 2) normalise(map, parts[1]);
                     break;
                 case "reverse":
+                    if (parts.length == 2) reverse(map, parts[1]);
                     break;
                 case "mirror":
                     break;
@@ -60,11 +65,69 @@ public class Whalesong {
             }
     }
 
-    private static void play(Map<String, String> map, String name) {
-        if (!map.containsKey(name)) {
-            System.out.println("Error: No song found for this whale.");
+    private static void reverse(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Reversed song: " + reverseString(map.get(name)));
         } else {
+            System.out.println("Error: No song to reverse.");
+        }
+    }
+
+    private static String reverseString(String string) {
+        StringBuilder sb = new StringBuilder(string);
+        return sb.reverse().toString();
+    }
+
+    private static void normalise(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Normalised song: " + map.get(name).toLowerCase());
+        } else {
+            System.out.println("Error: No song to normalise.");
+        }
+    }
+
+    private static void clarify(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Clarified song: " + replaceVowelsWithUpperCase(map.get(name)));
+        } else {
+            System.out.println("Error: No song to clarify.");
+        }
+    }
+
+    private static String replaceVowelsWithUpperCase(String string) {
+        String vowels = "aeiou";
+        char[] charArray = string.toCharArray();
+
+        for (int i = 0; i < charArray.length; i++) {
+            if (vowels.indexOf(charArray[i]) != -1) {
+                charArray[i] = Character.toUpperCase(charArray[i]);
+            }
+        }
+
+        return new String(charArray);
+    }
+
+    private static void augment(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Augmented song: " + map.get(name) + map.get(name));
+        } else {
+            System.out.println("Error: No song to augment.");
+        }
+    }
+
+    private static void hear(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Song for "+ name + ": " + map.get(name));
+        } else {
+            System.out.println("Error: No song found for this whale.");
+        }
+    }
+
+    private static void play(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
             System.out.println(map.get(name));
+        } else {
+            System.out.println("Error: No song found for this whale.");
         }
     }
 
