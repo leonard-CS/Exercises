@@ -49,20 +49,157 @@ public class Whalesong {
                     if (parts.length == 2) reverse(map, parts[1]);
                     break;
                 case "mirror":
+                    if (parts.length == 2) mirror(map, parts[1]);
                     break;
                 case "uppercase":
+                    if (parts.length == 2) uppercase(map, parts[1]);
                     break;
                 case "pattern":
+                    if (parts.length == 2) pattern(map, parts[1]);
                     break;
                 case "echo":
+                    if (parts.length == 2) echo(map, parts[1]);
                     break;
                 case "compress":
+                    if (parts.length == 2) compress(map, parts[1]);
                     break;
                 case "expand":
+                    if (parts.length == 2) expand(map, parts[1]);
                     break;
                 case "invert":
+                    if (parts.length == 2) invert(map, parts[1]);
                     break;
             }
+    }
+
+    private static void invert(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Inverted song: " + invertCase(map.get(name)));
+        } else {
+            System.out.println("Error: No song to invert.");
+        }
+    }
+
+    private static String invertCase(String string) {
+        StringBuilder sb = new StringBuilder();
+    
+        char[] charArray = string.toCharArray();
+    
+        for (char c : charArray) {
+            if (Character.isUpperCase(c)) {
+                sb.append(Character.toLowerCase(c));
+            } 
+            else if (Character.isLowerCase(c)) {
+                sb.append(Character.toUpperCase(c));
+            }
+            else {
+                sb.append(c);
+            }
+        }
+    
+        return sb.toString();
+    }
+
+    private static void expand(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Expanded song: " + doubleConsonant(map.get(name)));
+        } else {
+            System.out.println("Error: No song to expand.");
+        }
+    }
+
+    private static String doubleConsonant(String string) {
+        String vowels = "aeiou";
+        StringBuilder sb = new StringBuilder();
+    
+        char[] charArray = string.toCharArray();
+    
+        for (char c : charArray) {
+            sb.append(c);
+            // Check if the character is not a vowel
+            if (vowels.indexOf(Character.toLowerCase(c)) == -1) {
+                sb.append(c);
+            }
+        }
+    
+        return sb.toString();
+    }
+
+    private static void compress(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Compressed song: " + removeVowels(map.get(name)));
+        } else {
+            System.out.println("Error: No song to compress.");
+        }
+    }
+
+    private static String removeVowels(String string) {
+        String vowels = "aeiou";
+        StringBuilder sb = new StringBuilder();
+    
+        char[] charArray = string.toCharArray();
+    
+        for (char c : charArray) {
+            // Check if the character is not a vowel
+            if (vowels.indexOf(Character.toLowerCase(c)) == -1) {
+                sb.append(c);
+            }
+        }
+    
+        return sb.toString();
+    }
+
+    private static void echo(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Patterned song: " + repeatLastThreeCharacter(map.get(name), 5));
+        } else {
+            System.out.println("Error: No song to pattern.");
+        }
+    }
+
+    private static String repeatLastThreeCharacter(String string, int times) {
+        String lastThree = string.substring(string.length() - 3);
+
+        StringBuilder sb = new StringBuilder(string);
+        for (int i = 0; i < times; i++) {
+            sb.append(lastThree);
+        }
+
+        return sb.toString();
+    }
+
+    private static void pattern(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Patterned song: " + replaceSecondCharacter(map.get(name)));
+        } else {
+            System.out.println("Error: No song to pattern.");
+        }
+    }
+
+    private static String replaceSecondCharacter(String string) {
+        char[] charArray = string.toCharArray();
+
+        for (int i = 1; i < charArray.length; i+=2) {
+            charArray[i] = '*';
+        }
+
+        return new String(charArray);
+    }
+
+    private static void uppercase(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Uppercased song: " + map.get(name).toUpperCase());
+        } else {
+            System.out.println("Error: No song to uppercase.");
+        }
+    }
+
+    private static void mirror(Map<String, String> map, String name) {
+        if (map.containsKey(name)) {
+            System.out.println("Mirrored song: " + map.get(name) + reverseString(map.get(name)));
+        } else {
+            System.out.println("Error: No song to mirror.");
+        }
     }
 
     private static void reverse(Map<String, String> map, String name) {
@@ -99,6 +236,7 @@ public class Whalesong {
         char[] charArray = string.toCharArray();
 
         for (int i = 0; i < charArray.length; i++) {
+            // Check if the character is a vowel
             if (vowels.indexOf(charArray[i]) != -1) {
                 charArray[i] = Character.toUpperCase(charArray[i]);
             }
