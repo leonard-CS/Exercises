@@ -1,0 +1,4 @@
+G-Toilet 150
+ZapTrap 10
+BopShield 20
+TitanBoost 2
