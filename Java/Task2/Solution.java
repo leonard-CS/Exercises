@@ -1,5 +1,3 @@
-package Java.Task2;
-
 import java.util.*;
 
 public class Solution {
