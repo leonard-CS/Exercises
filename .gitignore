@@ -3,3 +3,10 @@
 
 # Compiled class files
 *.class
+
+# Gradle build output
+build/
+
+# Gradle wrapper files
+.gradle/
+gradle/
