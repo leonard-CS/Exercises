@@ -51,6 +51,9 @@ public class App extends PApplet {
     };
 
     private long startTime;
+
+    private PImage[] tileImages;
+    private PImage[] mineImages;
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
@@ -80,6 +83,19 @@ public class App extends PApplet {
         gameBoard = new GameBoard(BOARD_HEIGHT-2, BOARD_WIDTH, NUM_MINES); //BOARD_HEIGHT-2 to skip top bar
         gameController = new GameController(gameBoard);
         startTime = millis(); // Initialize start time
+
+        // Load the tile images
+        tileImages = new PImage[3];
+        tileImages[0] = loadImage("src/main/resources/minesweeper/tile.png");
+        for (int i = 1; i < tileImages.length; i++) {
+            tileImages[i] = loadImage("src/main/resources/minesweeper/tile" + i + ".png");
+        }
+
+        // Load the mine images
+        mineImages = new PImage[9];
+        for (int i = 0; i < mineImages.length; i++) {
+            mineImages[i] = loadImage("src/main/resources/minesweeper/mine" + i + ".png");
+        }
     }
 
     /**
@@ -117,6 +133,20 @@ public class App extends PApplet {
         //draw game board
         background(200);
         drawTopBar();
+        drawBoard();
+    }
+
+    private void drawBoard() {
+        // Iterate through each cell in the game board
+        for (int row = 0; row < BOARD_HEIGHT; row++) {
+            for (int col = 0; col < BOARD_WIDTH; col++) {
+                // Calculate the position where the tile should be drawn
+                int x = col * CELLSIZE;
+                int y = row * CELLSIZE + TOPBAR;
+
+                image(tileImages[1], x, y, CELLSIZE, CELLSIZE);
+            }
+        }
     }
 
     private void drawTopBar() {
