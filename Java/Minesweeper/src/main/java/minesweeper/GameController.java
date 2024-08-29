@@ -17,4 +17,9 @@ public class GameController {
     public void handleKeyPress(KeyEvent e) {
         // Handle key press events
     }
+
+    public void revealCell(int row, int col) {
+        Cell cell = this.gameBoard.getCell(row, col);
+        cell.isRevealed = true;
+    }
 }

@@ -116,7 +116,19 @@ public class App extends PApplet {
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+        if (mouseButton == LEFT) { // Left mouse button
+            // Convert mouse coordinates to board coordinates
+            int col = mouseX / CELLSIZE;
+            int row = (mouseY - TOPBAR) / CELLSIZE; // Adjust for top bar
+    
+            // Ensure the click is within the board boundaries
+            if (row >= 0 && row < BOARD_HEIGHT && col >= 0 && col < BOARD_WIDTH) {
+                // Reveal the cell
+                gameController.revealCell(row, col);
+                // Redraw the board to reflect the changes
+                redraw();
+            }
+        }
 
     }
 
@@ -158,10 +170,11 @@ public class App extends PApplet {
 
                 if (cell.isRevealed) {
                     // Draw the appropriate tile image for revealed cells
-                    int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
-                    if (mineCount >= 0 && mineCount < mineImages.length) {
-                        tileImageToUse = mineImages[mineCount];
-                    }
+                    tileImageToUse = tileImages[0];
+                    // int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
+                    // if (mineCount >= 0 && mineCount < mineImages.length) {
+                    //     tileImageToUse = mineImages[mineCount];
+                    // }
                 } else if (isMouseOverCell(row, col)) {
                     // Draw the highlighted tile image when hovering
                     tileImageToUse = tileImages[2]; // Use a different image for hover effect
