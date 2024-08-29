@@ -125,6 +125,12 @@ public class App extends PApplet {
 
     }
 
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        // Redraw the board to show the new hover effect
+        redraw();
+    }
+
     /**
      * Draw all elements in the game by current frame.
      */
@@ -138,15 +144,41 @@ public class App extends PApplet {
 
     private void drawBoard() {
         // Iterate through each cell in the game board
-        for (int row = 0; row < BOARD_HEIGHT; row++) {
+        for (int row = 0; row < BOARD_HEIGHT-2; row++) {
             for (int col = 0; col < BOARD_WIDTH; col++) {
                 // Calculate the position where the tile should be drawn
                 int x = col * CELLSIZE;
                 int y = row * CELLSIZE + TOPBAR;
 
-                image(tileImages[1], x, y, CELLSIZE, CELLSIZE);
+                // Get the cell's state (you need to implement this method in your GameBoard class)
+                Cell cell = gameBoard.getCell(row, col);
+
+                // Determine the image to be used for this cell
+                PImage tileImageToUse = tileImages[1]; // Default tile image
+
+                if (cell.isRevealed) {
+                    // Draw the appropriate tile image for revealed cells
+                    int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
+                    if (mineCount >= 0 && mineCount < mineImages.length) {
+                        tileImageToUse = mineImages[mineCount];
+                    }
+                } else if (isMouseOverCell(row, col)) {
+                    // Draw the highlighted tile image when hovering
+                    tileImageToUse = tileImages[2]; // Use a different image for hover effect
+                }
+
+                image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
             }
         }
+    }
+
+    private boolean isMouseOverCell(int row, int col) {
+        // Adjust mouseY for the top bar since mouseY is relative to the entire window
+        float adjustedMouseY = mouseY - TOPBAR;
+
+        // Check if mouse is within the bounds of the cell
+        return mouseX >= col * CELLSIZE && mouseX < (col + 1) * CELLSIZE &&
+            adjustedMouseY >= row * CELLSIZE && adjustedMouseY < (row + 1) * CELLSIZE;
     }
 
     private void drawTopBar() {
