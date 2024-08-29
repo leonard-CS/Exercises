@@ -17,6 +17,9 @@ import java.util.*;
 
 public class App extends PApplet {
 
+    private GameBoard gameBoard;
+    private GameController gameController;
+
     public static final int CELLSIZE = 32; //8;
     public static final int CELLHEIGHT = 32;
 
@@ -24,26 +27,30 @@ public class App extends PApplet {
     public static final int TOPBAR = 64;
     public static int WIDTH = 864; //CELLSIZE*BOARD_WIDTH;
     public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;
-    public static final int BOARD_WIDTH = WIDTH/CELLSIZE;
-    public static final int BOARD_HEIGHT = 20;
+    public static final int BOARD_WIDTH = WIDTH/CELLSIZE; //27
+    public static final int BOARD_HEIGHT = 20; //18+2
 
     public static final int FPS = 30;
+
+    public static int NUM_MINES = 100;
 
     public String configPath;
 
     public static Random random = new Random();
 	
 	public static int[][] mineCountColour = new int[][] {
-            {0,0,0}, // 0 is not shown
-            {0,0,255},
-            {0,133,0},
-            {255,0,0},
-            {0,0,132},
-            {132,0,0},
-            {0,132,132},
-            {132,0,132},
-            {32,32,32}
+        {0, 0, 0},     // 0 - not shown
+        {0, 0, 255},   // 1 - blue
+        {0, 133, 0},   // 2 - green
+        {255, 0, 0},   // 3 - red
+        {0, 0, 132},   // 4 - dark blue
+        {132, 0, 0},   // 5 - dark red
+        {0, 132, 132}, // 6 - cyan
+        {132, 0, 132}, // 7 - purple
+        {32, 32, 32}   // 8 - gray
     };
+
+    private long startTime;
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
@@ -70,6 +77,9 @@ public class App extends PApplet {
 		//loadImage(this.getClass().getResource(filename).getPath().toLowerCase(Locale.ROOT).replace("%20", " "));
 
         //create attributes for data storage, eg board
+        gameBoard = new GameBoard(BOARD_HEIGHT-2, BOARD_WIDTH, NUM_MINES); //BOARD_HEIGHT-2 to skip top bar
+        gameController = new GameController(gameBoard);
+        startTime = millis(); // Initialize start time
     }
 
     /**
@@ -105,10 +115,35 @@ public class App extends PApplet {
 	@Override
     public void draw() {
         //draw game board
+        background(200);
+        drawTopBar();
+    }
+
+    private void drawTopBar() {
+        fill(150);
+        rect(0, 0, width, TOPBAR);
+
+        // Draw timer
+        long elapsedTime = millis() - startTime;
+        int seconds = (int) (elapsedTime / 1000);
+
+        String timeStr = String.format("Time: %d", seconds);
+        textSize(32);
+        fill(0); // White color for text
+        textAlign(RIGHT, CENTER);
+        text(timeStr, width - 20, TOPBAR / 2); // Adjust position as needed
     }
 
 
     public static void main(String[] args) {
+        if (args.length == 1) {
+            try {
+                NUM_MINES = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.err.printf("Error: Invalid parameter for number '%s' of mines. Default: %s mines.%n", args[0], NUM_MINES);
+            }
+        }
+
         PApplet.main("minesweeper.App");
     }
 
