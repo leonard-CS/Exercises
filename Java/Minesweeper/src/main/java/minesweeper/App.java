@@ -37,6 +37,11 @@ public class App extends PApplet {
     public String configPath;
 
     public static Random random = new Random();
+
+    private long startTime;
+
+    private PImage[] tileImages;
+    private PImage[] mineImages;
 	
 	public static int[][] mineCountColour = new int[][] {
         {0, 0, 0},     // 0 - not shown
@@ -50,11 +55,10 @@ public class App extends PApplet {
         {32, 32, 32}   // 8 - gray
     };
 
-    private long startTime;
+    private int getColorForNumber(int number) {
+        return color(mineCountColour[number][0], mineCountColour[number][1], mineCountColour[number][2]);
+    }
 
-    private PImage[] tileImages;
-    private PImage[] mineImages;
-	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
     public App() {
@@ -156,31 +160,39 @@ public class App extends PApplet {
 
     private void drawBoard() {
         // Iterate through each cell in the game board
-        for (int row = 0; row < BOARD_HEIGHT-2; row++) {
+        for (int row = 0; row < BOARD_HEIGHT - 2; row++) {
             for (int col = 0; col < BOARD_WIDTH; col++) {
                 // Calculate the position where the tile should be drawn
                 int x = col * CELLSIZE;
                 int y = row * CELLSIZE + TOPBAR;
-
-                // Get the cell's state (you need to implement this method in your GameBoard class)
+    
+                // Get the cell's state
                 Cell cell = gameBoard.getCell(row, col);
-
+    
                 // Determine the image to be used for this cell
                 PImage tileImageToUse = tileImages[1]; // Default tile image
-
+    
                 if (cell.isRevealed) {
-                    // Draw the appropriate tile image for revealed cells
+                    // Draw the tile image for revealed cells
                     tileImageToUse = tileImages[0];
-                    // int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
-                    // if (mineCount >= 0 && mineCount < mineImages.length) {
-                    //     tileImageToUse = mineImages[mineCount];
-                    // }
+                    image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
+    
+                    // Draw the text for mine count on top of the tile image
+                    int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
+                    if (mineCount > 0) {
+                        textSize(20);
+                        fill(getColorForNumber(mineCount));
+                        textAlign(CENTER, CENTER);
+                        text(mineCount, x + CELLSIZE / 2, y + CELLSIZE / 2); // Adjust position as needed
+                    }
                 } else if (isMouseOverCell(row, col)) {
                     // Draw the highlighted tile image when hovering
                     tileImageToUse = tileImages[2]; // Use a different image for hover effect
+                    image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
+                } else {
+                    // Draw the default tile image
+                    image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
                 }
-
-                image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
             }
         }
     }
