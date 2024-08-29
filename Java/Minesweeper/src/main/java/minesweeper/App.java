@@ -30,7 +30,7 @@ public class App extends PApplet {
     public static final int BOARD_WIDTH = WIDTH/CELLSIZE; //27
     public static final int BOARD_HEIGHT = 20; //18+2
 
-    public static final int FPS = 30;
+    public static final int FPS = 1;
 
     public static int NUM_MINES = 100;
 
@@ -174,16 +174,23 @@ public class App extends PApplet {
     
                 if (cell.isRevealed) {
                     // Draw the tile image for revealed cells
-                    tileImageToUse = tileImages[0];
-                    image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
-    
-                    // Draw the text for mine count on top of the tile image
-                    int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
-                    if (mineCount > 0) {
-                        textSize(20);
-                        fill(getColorForNumber(mineCount));
-                        textAlign(CENTER, CENTER);
-                        text(mineCount, x + CELLSIZE / 2, y + CELLSIZE / 2); // Adjust position as needed
+                    if (cell.isMine) {
+                        tileImageToUse = mineImages[0];
+                        image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
+                    } else {
+                        tileImageToUse = tileImages[0];
+                        image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
+        
+                        // Draw the text for mine count on top of the tile image
+                        int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
+                        if (mineCount > 0) {
+                            textSize(20);
+                            fill(getColorForNumber(mineCount));
+                            textAlign(CENTER, CENTER);
+                            text(mineCount, x + CELLSIZE / 2, y + CELLSIZE / 2); // Adjust position as needed
+                        } else {
+                            gameBoard.revealAdjacentCell(row, col);
+                        }
                     }
                 } else if (isMouseOverCell(row, col)) {
                     // Draw the highlighted tile image when hovering

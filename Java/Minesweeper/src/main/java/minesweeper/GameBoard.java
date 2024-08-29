@@ -70,6 +70,18 @@ public class GameBoard {
         return board[r][c];
     }
 
+    void revealAdjacentCell(int r, int c) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                int nr = r + i;
+                int nc = c + j;
+                if (nr >= 0 && nr < board.length && nc >= 0 && nc < board[0].length && !board[nr][nc].isMine) {
+                    board[nr][nc].isRevealed = true;
+                }
+            }
+        }
+    }
+
     public boolean isGameOver() {
         return gameOver;
     }
