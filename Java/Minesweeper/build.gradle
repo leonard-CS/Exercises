@@ -54,3 +54,13 @@ jar {
         configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
     }
 }
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+run {
+     args = ['100'] // Your command-line arguments here
+ }
