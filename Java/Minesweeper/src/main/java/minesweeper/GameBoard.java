@@ -4,9 +4,11 @@ import java.util.Random;
 
 public class GameBoard {
     private final Cell[][] board;
+    private boolean win;
     private boolean gameOver;
     private final int numMines;
     private int flagsCount;
+    public int revealCount;
     private final Random random;
 
     public GameBoard(int rows, int cols, int numMines) {
@@ -14,7 +16,9 @@ public class GameBoard {
         this.board = new Cell[rows][cols];
         this.numMines = numMines;
         this.flagsCount = 0;
+        this.revealCount = 0;
         this.random = new Random();
+        this.win = false;
         this.gameOver = false;
 
         // Initialize the board
@@ -74,6 +78,14 @@ public class GameBoard {
 
     public Cell getCell(int r, int c) {
         return board[r][c];
+    }
+
+    public boolean isWin() {
+        return win;
+    }
+
+    public void setWin(boolean win) {
+        this.win = win;
     }
 
     public boolean isGameOver() {

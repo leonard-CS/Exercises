@@ -14,7 +14,7 @@
 ### Game Mechanics
 - [x] Mines are randomly placed on the board when the game starts based on the first command line argument (default 100 if not provided).
 - [x] Timer counts up every second in the top-right corner of the screen and stops when the game ends.
-- [ ] If a player reveals all tiles without clicking on any mines, they win the game.
+- [x] If a player reveals all tiles without clicking on any mines, they win the game.
 - [x] Revealed tiles show the correct number and associated color depending on the count of adjacent mines (1-8 or blank).
 - [x] If a player clicks on a mine, it explodes, and all other mines on the board explode as well. Display the message "You lost!".
 - [x] Mine explosion is animated with each image lasting 3 frames.

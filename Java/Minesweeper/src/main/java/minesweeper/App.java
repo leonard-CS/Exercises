@@ -32,6 +32,7 @@ public class App extends PApplet {
 
     public static final int FPS = 30;
 
+    public static int NUM_TILES = 18 * 27;
     public static int NUM_MINES = 100;
 
     public String configPath;
@@ -190,7 +191,7 @@ public class App extends PApplet {
         rect(0, 0, width, TOPBAR);
 
         // Update time if game is not over
-        if (!gameBoard.isGameOver()) {
+        if (!gameBoard.isGameOver() && !gameBoard.isWin()) {
             gameTime = (millis() - startTime) / 1000;
         }
         
@@ -198,7 +199,14 @@ public class App extends PApplet {
         textSize(32);
         fill(0); // White color for text
         textAlign(RIGHT, CENTER);
+        textAlign(RIGHT, CENTER);
         text("Time: " + gameTime, width - 20, TOPBAR / 2); // Adjust position as needed
+
+        // Draw reveal count
+        textSize(32);
+        fill(0); // White color for text
+        textAlign(LEFT, CENTER);
+        text("Reveal Count: " + gameBoard.revealCount, 20, TOPBAR / 2); // Adjust position as needed
     }
 
     private void drawBoard() {
@@ -226,6 +234,10 @@ public class App extends PApplet {
                 if (cell.isRevealed() && cell.getNeighboringMines() > 0) {
                     drawMineCount(cell.getNeighboringMines(), x, y);
                 }
+                if (gameBoard.revealCount == (NUM_TILES - NUM_MINES) && !gameBoard.isGameOver()) {
+                    gameBoard.setWin(true);
+                    drawWin();
+                }
                 if (gameBoard.isGameOver() && cell.isMine()) {
                     drawExplosionEffect(cell, x, y);
                 }
@@ -248,6 +260,13 @@ public class App extends PApplet {
         fill(color(mineCountColour[mineCount][0], mineCountColour[mineCount][1], mineCountColour[mineCount][2]));
         textAlign(CENTER, CENTER);
         text(mineCount, x + CELLSIZE / 2, y + CELLSIZE / 2);
+    }
+
+    private void drawWin() {
+        textSize(64);
+        fill(0, 255, 0); // Green color for text
+        textAlign(CENTER, CENTER);
+        text("You Win!", width / 2, height / 2);
     }
 
     private void drawExplosionEffect(Cell cell, int x, int y) {

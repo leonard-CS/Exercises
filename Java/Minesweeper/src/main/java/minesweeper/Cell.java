@@ -52,10 +52,12 @@ public class Cell {
     }
 
     // Utility methods
-    public void reveal() {
+    public boolean reveal() {
         if (!isFlagged) {
             this.isRevealed = true;
+            return true;
         }
+        return false;
     }
 
     public void toggleFlag() {

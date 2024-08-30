@@ -25,7 +25,9 @@ public class GameController {
             return; // No action if the cell is already revealed or flagged
         }
 
-        cell.reveal();
+        if (cell.reveal()) {
+            gameBoard.revealCount++;
+        }
 
         if (cell.isMine()) {
             gameBoard.setGameOver(true);
