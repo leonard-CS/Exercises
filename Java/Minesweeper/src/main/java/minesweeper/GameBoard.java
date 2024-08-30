@@ -3,11 +3,11 @@ package minesweeper;
 import java.util.Random;
 
 public class GameBoard {
-    private Cell[][] board;
+    private final Cell[][] board;
     private boolean gameOver;
-    private int numMines;
+    private final int numMines;
     private int flagsCount;
-    private Random random;
+    private final Random random;
 
     public GameBoard(int rows, int cols, int numMines) {
         // Initialize board
@@ -18,14 +18,17 @@ public class GameBoard {
         this.gameOver = false;
 
         // Initialize the board
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                board[r][c] = new Cell();
-            }
-        }
-
+        initializeBoard();
         placeMines();
         calculateNeighboringMines();
+    }
+
+    private void initializeBoard() {
+        for (int r = 0; r < board.length; r++) {
+            for (int c = 0; c < board[0].length; c++) {
+                board[r][c] = new Cell(false); // Initialize with no mines
+            }
+        }
     }
 
     private void placeMines() {
@@ -33,8 +36,8 @@ public class GameBoard {
         while (placedMines < numMines) {
             int r = random.nextInt(board.length);
             int c = random.nextInt(board[0].length);
-            if (!board[r][c].isMine) {
-                board[r][c].isMine = true;
+            if (!board[r][c].isMine()) {
+                board[r][c] = new Cell(true);
                 placedMines++;
             }
         }
@@ -43,9 +46,9 @@ public class GameBoard {
     private void calculateNeighboringMines() {
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[0].length; c++) {
-                if (!board[r][c].isMine) {
+                if (!board[r][c].isMine()) {
                     int count = countNeighboringMines(r, c);
-                    board[r][c].neighboringMines = count;
+                    board[r][c].setNeighboringMines(count);
                 }
             }
         }
@@ -57,7 +60,7 @@ public class GameBoard {
             for (int j = -1; j <= 1; j++) {
                 int nr = r + i;
                 int nc = c + j;
-                if (nr >= 0 && nr < board.length && nc >= 0 && nc < board[0].length && board[nr][nc].isMine) {
+                if (isValidPosition(nr, nc) && board[nr][nc].isMine()) {
                     count++;
                 }
             }
@@ -65,31 +68,31 @@ public class GameBoard {
         return count;
     }
 
-    public Cell getCell(int r, int c) {
-        return board[r][c];
+    private boolean isValidPosition(int r, int c) {
+        return r >= 0 && r < board.length && c >= 0 && c < board[0].length;
     }
 
-    void revealAdjacentCell(int r, int c) {
-        for (int i = -1; i <= 1; i++) {
-            for (int j = -1; j <= 1; j++) {
-                int nr = r + i;
-                int nc = c + j;
-                if (nr >= 0 && nr < board.length && nc >= 0 && nc < board[0].length && !board[nr][nc].isMine) {
-                    board[nr][nc].isRevealed = true;
-                }
-            }
-        }
+    public Cell getCell(int r, int c) {
+        return board[r][c];
     }
 
     public boolean isGameOver() {
         return gameOver;
     }
 
-    public void setGameOver(boolean flag) {
-        gameOver = flag;
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     public int getMinesRemaining() {
         return numMines - flagsCount;
     }
+
+    public int getRows() {
+        return board.length;
+    }
+    
+    public int getCols() {
+        return board[0].length;
+    }    
 }

@@ -41,6 +41,9 @@ public class App extends PApplet {
     private long startTime;
     private long gameTime;
 
+    private int explodeFrames;
+    private int mineIndex;
+
     private PImage[] tileImages;
     private PImage[] mineImages;
 	
@@ -55,10 +58,6 @@ public class App extends PApplet {
         {132, 0, 132}, // 7 - purple
         {32, 32, 32}   // 8 - gray
     };
-
-    private int getColorForNumber(int number) {
-        return color(mineCountColour[number][0], mineCountColour[number][1], mineCountColour[number][2]);
-    }
 
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
@@ -85,10 +84,12 @@ public class App extends PApplet {
 		//loadImage(this.getClass().getResource(filename).getPath().toLowerCase(Locale.ROOT).replace("%20", " "));
 
         //create attributes for data storage, eg board
-        gameBoard = new GameBoard(BOARD_HEIGHT-2, BOARD_WIDTH, NUM_MINES); //BOARD_HEIGHT-2 to skip top bar
-        gameController = new GameController(gameBoard);
-        startTime = millis(); // Initialize start time
 
+        loadImages();
+        startGame();
+    }
+
+    private void loadImages() {
         // Load the tile images
         tileImages = new PImage[3];
         tileImages[0] = loadImage("src/main/resources/minesweeper/tile.png");
@@ -103,20 +104,22 @@ public class App extends PApplet {
         }
     }
 
+    private void startGame() {
+        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, NUM_MINES); // Reinitialize game board
+        gameController = new GameController(gameBoard); // Reinitialize game controller
+        startTime = millis(); // Reset start time
+        explodeFrames = 0;
+        mineIndex = 0;
+    }
+
     /**
      * Receive key pressed signal from the keyboard.
      */
 	@Override
     public void keyPressed(KeyEvent event) {
         if (event.getKey() == 'r' || event.getKey() == 'R') {
-            resetGame(); // Call reset method
+            startGame(); // Restart game
         }
-    }
-
-    private void resetGame() {
-        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, NUM_MINES); // Reinitialize game board
-        gameController = new GameController(gameBoard); // Reinitialize game controller
-        startTime = millis(); // Reset start time
     }
 
     /**
@@ -135,13 +138,17 @@ public class App extends PApplet {
             int row = (mouseY - TOPBAR) / CELLSIZE; // Adjust for top bar
     
             // Ensure the click is within the board boundaries
-            if (row >= 0 && row < BOARD_HEIGHT && col >= 0 && col < BOARD_WIDTH) {
+            if (isValidCell(row, col)) {
                 // Reveal the cell
                 gameController.revealCell(row, col);
                 // Redraw the board to reflect the changes
                 redraw();
             }
         }
+    }
+
+    private boolean isValidCell(int row, int col) {
+        return row >= 0 && row < BOARD_HEIGHT && col >= 0 && col < BOARD_WIDTH;
     }
 
     @Override
@@ -172,19 +179,21 @@ public class App extends PApplet {
 
         // Update time if game is not over
         if (!gameBoard.isGameOver()) {
-            long elapsedTime = millis() - startTime;
-            gameTime = (int) (elapsedTime / 1000);
+            gameTime = (millis() - startTime) / 1000;
         }
         
         // Draw timer
-        String timeStr = String.format("Time: %d", gameTime);
         textSize(32);
         fill(0); // White color for text
         textAlign(RIGHT, CENTER);
-        text(timeStr, width - 20, TOPBAR / 2); // Adjust position as needed
+        text("Time: " + gameTime, width - 20, TOPBAR / 2); // Adjust position as needed
     }
 
     private void drawBoard() {
+        if (gameBoard.isGameOver()) {
+            explodeFrames++;
+        }
+
         // Iterate through each cell in the game board
         for (int row = 0; row < BOARD_HEIGHT - 2; row++) {
             for (int col = 0; col < BOARD_WIDTH; col++) {
@@ -196,45 +205,44 @@ public class App extends PApplet {
                 Cell cell = gameBoard.getCell(row, col);
     
                 // Determine the image to be used for this cell
-                PImage tileImageToUse = tileImages[1]; // Default tile image
-    
-                if (cell.isRevealed) {
-                    // Draw the tile image for revealed cells
-                    if (cell.isMine) {
-                        tileImageToUse = mineImages[0];
-                        image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
-                    } else {
-                        tileImageToUse = tileImages[0];
-                        image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
-        
-                        // Draw the text for mine count on top of the tile image
-                        int mineCount = cell.neighboringMines; // Example method to get the count of adjacent mines
-                        if (mineCount > 0) {
-                            textSize(20);
-                            fill(getColorForNumber(mineCount));
-                            textAlign(CENTER, CENTER);
-                            text(mineCount, x + CELLSIZE / 2, y + CELLSIZE / 2); // Adjust position as needed
-                        } else {
-                            gameBoard.revealAdjacentCell(row, col);
-                        }
-                    }
-                } else if (isMouseOverCell(row, col)) {
-                    // Draw the highlighted tile image when hovering
-                    tileImageToUse = tileImages[2]; // Use a different image for hover effect
-                    image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
-                } else {
-                    // Draw the default tile image
-                    image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
-                }
+                PImage tileImageToUse = determineTileImage(cell, row, col);
 
-                if (gameBoard.isGameOver()) {
-                    textSize(64);
-                    fill(255, 0, 0); // Red color for text
-                    textAlign(CENTER, CENTER);
-                    text("You Lost!", width / 2, height / 2); // Adjust position as needed
+                image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
+                if (cell.isRevealed() && cell.getNeighboringMines() > 0) {
+                    drawMineCount(cell.getNeighboringMines(), x, y);
+                }
+                if (gameBoard.isGameOver() && cell.isMine()) {
+                    drawExplosionEffect(cell, x, y);
                 }
             }
         }
+    }
+
+    private PImage determineTileImage(Cell cell, int row, int col) {
+        if (cell.isRevealed()) {
+            return tileImages[0];
+        } else if (isMouseOverCell(row, col)) {
+            return tileImages[2];
+        } else {
+            return tileImages[1];
+        }
+    }
+
+    private void drawMineCount(int mineCount, int x, int y) {
+        textSize(20);
+        fill(color(mineCountColour[mineCount][0], mineCountColour[mineCount][1], mineCountColour[mineCount][2]));
+        textAlign(CENTER, CENTER);
+        text(mineCount, x + CELLSIZE / 2, y + CELLSIZE / 2);
+    }
+
+    private void drawExplosionEffect(Cell cell, int x, int y) {
+        mineIndex = Math.min(explodeFrames / 3, mineImages.length - 1);
+        image(mineImages[mineIndex], x, y, CELLSIZE, CELLSIZE);
+
+        textSize(64);
+        fill(255, 0, 0); // Red color for text
+        textAlign(CENTER, CENTER);
+        text("You Lost!", width / 2, height / 2);
     }
 
     private boolean isMouseOverCell(int row, int col) {
