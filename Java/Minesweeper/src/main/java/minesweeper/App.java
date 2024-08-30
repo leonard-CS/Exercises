@@ -30,7 +30,7 @@ public class App extends PApplet {
     public static final int BOARD_WIDTH = WIDTH/CELLSIZE; //27
     public static final int BOARD_HEIGHT = 20; //18+2
 
-    public static final int FPS = 1;
+    public static final int FPS = 30;
 
     public static int NUM_MINES = 100;
 
@@ -39,6 +39,7 @@ public class App extends PApplet {
     public static Random random = new Random();
 
     private long startTime;
+    private long gameTime;
 
     private PImage[] tileImages;
     private PImage[] mineImages;
@@ -106,8 +107,16 @@ public class App extends PApplet {
      * Receive key pressed signal from the keyboard.
      */
 	@Override
-    public void keyPressed(KeyEvent event){
-        
+    public void keyPressed(KeyEvent event) {
+        if (event.getKey() == 'r' || event.getKey() == 'R') {
+            resetGame(); // Call reset method
+        }
+    }
+
+    private void resetGame() {
+        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, NUM_MINES); // Reinitialize game board
+        gameController = new GameController(gameBoard); // Reinitialize game controller
+        startTime = millis(); // Reset start time
     }
 
     /**
@@ -133,7 +142,6 @@ public class App extends PApplet {
                 redraw();
             }
         }
-
     }
 
     @Override
@@ -156,6 +164,24 @@ public class App extends PApplet {
         background(200);
         drawTopBar();
         drawBoard();
+    }
+
+    private void drawTopBar() {
+        fill(150);
+        rect(0, 0, width, TOPBAR);
+
+        // Update time if game is not over
+        if (!gameBoard.isGameOver()) {
+            long elapsedTime = millis() - startTime;
+            gameTime = (int) (elapsedTime / 1000);
+        }
+        
+        // Draw timer
+        String timeStr = String.format("Time: %d", gameTime);
+        textSize(32);
+        fill(0); // White color for text
+        textAlign(RIGHT, CENTER);
+        text(timeStr, width - 20, TOPBAR / 2); // Adjust position as needed
     }
 
     private void drawBoard() {
@@ -200,6 +226,13 @@ public class App extends PApplet {
                     // Draw the default tile image
                     image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
                 }
+
+                if (gameBoard.isGameOver()) {
+                    textSize(64);
+                    fill(255, 0, 0); // Red color for text
+                    textAlign(CENTER, CENTER);
+                    text("You Lost!", width / 2, height / 2); // Adjust position as needed
+                }
             }
         }
     }
@@ -212,22 +245,6 @@ public class App extends PApplet {
         return mouseX >= col * CELLSIZE && mouseX < (col + 1) * CELLSIZE &&
             adjustedMouseY >= row * CELLSIZE && adjustedMouseY < (row + 1) * CELLSIZE;
     }
-
-    private void drawTopBar() {
-        fill(150);
-        rect(0, 0, width, TOPBAR);
-
-        // Draw timer
-        long elapsedTime = millis() - startTime;
-        int seconds = (int) (elapsedTime / 1000);
-
-        String timeStr = String.format("Time: %d", seconds);
-        textSize(32);
-        fill(0); // White color for text
-        textAlign(RIGHT, CENTER);
-        text(timeStr, width - 20, TOPBAR / 2); // Adjust position as needed
-    }
-
 
     public static void main(String[] args) {
         if (args.length == 1) {

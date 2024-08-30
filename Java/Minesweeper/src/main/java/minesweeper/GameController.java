@@ -19,7 +19,11 @@ public class GameController {
     }
 
     public void revealCell(int row, int col) {
-        Cell cell = this.gameBoard.getCell(row, col);
-        cell.isRevealed = true;
+        Cell cell = gameBoard.getCell(row, col);
+        if (cell.isMine) {
+            gameBoard.setGameOver(true);
+        } else {
+            cell.isRevealed = true;
+        }
     }
 }

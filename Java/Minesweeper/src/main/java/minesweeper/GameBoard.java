@@ -24,7 +24,6 @@ public class GameBoard {
             }
         }
 
-
         placeMines();
         calculateNeighboringMines();
     }
@@ -84,6 +83,10 @@ public class GameBoard {
 
     public boolean isGameOver() {
         return gameOver;
+    }
+
+    public void setGameOver(boolean flag) {
+        gameOver = flag;
     }
 
     public int getMinesRemaining() {
