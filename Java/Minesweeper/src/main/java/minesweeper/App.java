@@ -44,6 +44,7 @@ public class App extends PApplet {
     private int explodeFrames;
     private int mineIndex;
 
+    private PImage flagImage;
     private PImage[] tileImages;
     private PImage[] mineImages;
 	
@@ -90,6 +91,8 @@ public class App extends PApplet {
     }
 
     private void loadImages() {
+        flagImage = loadImage("src/main/resources/minesweeper/flag.png");
+
         // Load the tile images
         tileImages = new PImage[3];
         tileImages[0] = loadImage("src/main/resources/minesweeper/tile.png");
@@ -143,6 +146,15 @@ public class App extends PApplet {
                 gameController.revealCell(row, col);
                 // Redraw the board to reflect the changes
                 redraw();
+            }
+        }
+        if (mouseButton == RIGHT) {
+            int col = mouseX / CELLSIZE;
+            int row = (mouseY - TOPBAR) / CELLSIZE;
+
+            if (isValidCell(row, col)) {
+                Cell cell = gameBoard.getCell(row, col);
+                cell.toggleFlag();
             }
         }
     }
@@ -208,6 +220,9 @@ public class App extends PApplet {
                 PImage tileImageToUse = determineTileImage(cell, row, col);
 
                 image(tileImageToUse, x, y, CELLSIZE, CELLSIZE);
+                if (!cell.isRevealed() && cell.isFlagged()) {
+                    image(flagImage, x, y, CELLSIZE, CELLSIZE);
+                }
                 if (cell.isRevealed() && cell.getNeighboringMines() > 0) {
                     drawMineCount(cell.getNeighboringMines(), x, y);
                 }

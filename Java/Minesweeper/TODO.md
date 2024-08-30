@@ -9,7 +9,7 @@
 - [x] Hovering over tiles with cursor changes the blue tile image to highlight it.
 - [x] Left clicking on a cell reveals it, showing the grey tile underneath.
 - [x] On each frame, cells adjacent to a revealed blank cell are revealed.
-- [ ] Right click on a blue cell flags it as containing a mine and shows the flag indicator. The tile can no longer be left-clicked to reveal it unless the flag is removed by right-clicking again.
+- [x] Right click on a blue cell flags it as containing a mine and shows the flag indicator. The tile can no longer be left-clicked to reveal it unless the flag is removed by right-clicking again.
 
 ### Game Mechanics
 - [x] Mines are randomly placed on the board when the game starts based on the first command line argument (default 100 if not provided).
