@@ -144,7 +144,9 @@ public class App extends PApplet {
             // Ensure the click is within the board boundaries
             if (isValidCell(row, col)) {
                 // Reveal the cell
-                gameController.revealCell(row, col);
+                if (!gameBoard.isWin() && !gameBoard.isGameOver()) {
+                    gameController.revealCell(row, col);
+                }
                 // Redraw the board to reflect the changes
                 redraw();
             }

@@ -9,15 +9,18 @@ package minesweeper;
 
 public class Cell {
     private final boolean isMine;
-    private boolean isRevealed;
-    private boolean isFlagged;
+    private boolean revealed;
+    private boolean flagged;
+    private boolean exploded;
+    private int explodeFrame;
     private int neighboringMines;
 
     // Constructor
     public Cell(boolean isMine) {
         this.isMine = isMine;
-        this.isRevealed = false;
-        this.isFlagged = false;
+        this.revealed = false;
+        this.flagged = false;
+        this.exploded = false;
         this.neighboringMines = 0;
     }
 
@@ -27,11 +30,15 @@ public class Cell {
     }
 
     public boolean isRevealed() {
-        return isRevealed;
+        return revealed;
     }
 
     public boolean isFlagged() {
-        return isFlagged;
+        return flagged;
+    }
+
+    public boolean isExploded() {
+        return exploded;
     }
 
     public int getNeighboringMines() {
@@ -39,12 +46,16 @@ public class Cell {
     }
 
     // Setters
-    public void setRevealed(boolean isRevealed) {
-        this.isRevealed = isRevealed;
+    public void setRevealed(boolean revealed) {
+        this.revealed = revealed;
     }
 
-    public void setFlagged(boolean isFlagged) {
-        this.isFlagged = isFlagged;
+    public void setFlagged(boolean flagged) {
+        this.flagged = flagged;
+    }
+
+    public void setExploded(boolean exploded) {
+        this.exploded = exploded;
     }
 
     public void setNeighboringMines(int neighboringMines) {
@@ -53,16 +64,16 @@ public class Cell {
 
     // Utility methods
     public boolean reveal() {
-        if (!isFlagged) {
-            this.isRevealed = true;
+        if (!flagged) {
+            this.revealed = true;
             return true;
         }
         return false;
     }
 
     public void toggleFlag() {
-        if (!isRevealed) {
-            this.isFlagged = !this.isFlagged;
+        if (!revealed) {
+            this.flagged = !this.flagged;
         }
     }
 
@@ -70,8 +81,8 @@ public class Cell {
     public String toString() {
         return "Cell{" +
                 "isMine=" + isMine +
-                ", isRevealed=" + isRevealed +
-                ", isFlagged=" + isFlagged +
+                ", isRevealed=" + revealed +
+                ", isFlagged=" + flagged +
                 ", neighboringMines=" + neighboringMines +
                 '}';
     }

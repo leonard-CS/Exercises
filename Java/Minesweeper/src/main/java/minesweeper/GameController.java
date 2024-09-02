@@ -30,6 +30,7 @@ public class GameController {
         }
 
         if (cell.isMine()) {
+            cell.setExploded(true);
             gameBoard.setGameOver(true);
         } else if (cell.getNeighboringMines() == 0) {
             revealAdjacentCells(row, col);
