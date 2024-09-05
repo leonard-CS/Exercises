@@ -6,20 +6,21 @@ import java.util.Random;
 
 public class GameBoard {
     private final Cell[][] board;
+    public final int NUM_TILES;
     private boolean win;
     private boolean gameOver;
     private final int numMines;
     private int flagsCount;
-    public int revealCount;
+    private int revealCount;
     private final Random random;
     public List<Cell> minesToExplode;
     public List<Cell> minesExploding;
 
     public GameBoard(int rows, int cols, int numMines, Random random) {
-        // Initialize board
         this.board = new Cell[rows][cols];
+        this.NUM_TILES = rows * cols;
         this.numMines = numMines;
-        this.flagsCount = 0;
+        this.flagsCount = numMines;
         this.revealCount = 0;
         this.random = random;
         this.win = false;
@@ -27,7 +28,6 @@ public class GameBoard {
         this.minesToExplode = new ArrayList<>();
         this.minesExploding = new ArrayList<>();
 
-        // Initialize the board
         initializeBoard();
         placeMines();
         calculateNeighboringMines();
@@ -36,7 +36,7 @@ public class GameBoard {
     private void initializeBoard() {
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[0].length; c++) {
-                board[r][c] = new Cell(r, c, false); // Initialize with no mines
+                board[r][c] = new Cell(r, c, false); // Initialize empty cells
             }
         }
     }
@@ -47,9 +47,8 @@ public class GameBoard {
             int r = random.nextInt(board.length);
             int c = random.nextInt(board[0].length);
             if (!board[r][c].isMine()) {
-                Cell cell = new Cell(r, c, true);
-                board[r][c] = cell;
-                minesToExplode.add(cell);
+                board[r][c] = new Cell(r, c, true); // Place mine
+                minesToExplode.add(board[r][c]);
                 placedMines++;
             }
         }
@@ -59,8 +58,7 @@ public class GameBoard {
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[0].length; c++) {
                 if (!board[r][c].isMine()) {
-                    int count = countNeighboringMines(r, c);
-                    board[r][c].setNeighboringMines(count);
+                    board[r][c].setNeighboringMines(countNeighboringMines(r, c));
                 }
             }
         }
@@ -84,6 +82,7 @@ public class GameBoard {
         return r >= 0 && r < board.length && c >= 0 && c < board[0].length;
     }
 
+    // Getters and setters
     public Cell getCell(int r, int c) {
         return board[r][c];
     }
@@ -104,15 +103,47 @@ public class GameBoard {
         this.gameOver = gameOver;
     }
 
-    public int getMinesRemaining() {
-        return numMines - flagsCount;
-    }
-
     public int getRows() {
         return board.length;
     }
-    
+
     public int getCols() {
         return board[0].length;
-    }    
+    }
+
+    public int getRevealCount() {
+        return revealCount;
+    }
+
+    public int getFlagsCount() {
+        return flagsCount;
+    }
+
+    public void incrementFlagsCount() {
+        flagsCount++;
+    }
+
+    public void decrementFlagsCount() {
+        flagsCount--;
+    }
+
+    public void incrementRevealCount() {
+        revealCount++;
+    }
+
+    // Utility methods
+    public void updateExplodingMines() {
+        for (Cell cell : minesExploding) {
+            if (cell.getMineImageIndex() < App.NUM_MINE_IMAGES) {
+                cell.incrementMineImageIndex();
+            }
+        }
+        if (minesToExplode.size() > 0) {
+            minesExploding.add(minesToExplode.remove(0));
+        }
+    }
+
+    public List<Cell> getMinesExploding() {
+        return minesExploding;
+    }
 }

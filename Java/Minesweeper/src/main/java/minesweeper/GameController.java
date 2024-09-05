@@ -1,12 +1,7 @@
 package minesweeper;
 
-import org.checkerframework.checker.units.qual.min;
-
-import processing.event.KeyEvent;
-import processing.event.MouseEvent;
-
 public class GameController {
-    private GameBoard gameBoard;
+    private final GameBoard gameBoard;
 
     public GameController(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
@@ -16,31 +11,28 @@ public class GameController {
         Cell cell = gameBoard.getCell(row, col);
 
         if (cell.isRevealed() || cell.isFlagged()) {
-            return; // No action if the cell is already revealed or flagged
+            return; // Don't act on already revealed or flagged cells
         }
 
-        if (cell.reveal()) {
-            gameBoard.revealCount++;
-        }
+        cell.reveal();
+        gameBoard.incrementRevealCount();;
 
         if (cell.isMine()) {
-            cell.setExploded(true);
-            gameBoard.setGameOver(true);
-            setupMinesToExplodeList(cell);
+            handleMineExplosion(cell);
         } else if (cell.getNeighboringMines() == 0) {
-            revealAdjacentCells(row, col);
+            revealAdjacentCells(row, col); // Reveal adjacent cells if no neighboring mines
         }
     }
 
-    private void setupMinesToExplodeList(Cell firstMine) {
-        for (int i = 0; i < gameBoard.minesToExplode.size(); i++) {
-            Cell mine = gameBoard.minesToExplode.get(i);
-            if (mine.xPos == firstMine.xPos && mine.yPos == firstMine.yPos) {
-                gameBoard.minesToExplode.remove(i);
-                gameBoard.minesToExplode.add(0, firstMine);
-                return;
-            }
-        }
+    private void handleMineExplosion(Cell mineCell) {
+        mineCell.setExploded(true);
+        gameBoard.setGameOver(true);
+        arrangeMineExplosion(mineCell);
+    }
+
+    private void arrangeMineExplosion(Cell firstMine) {
+        gameBoard.minesToExplode.remove(firstMine);
+        gameBoard.minesToExplode.add(0, firstMine); // Move the first mine to the start of the list
     }
 
     private void revealAdjacentCells(int row, int col) {
@@ -48,10 +40,8 @@ public class GameController {
             for (int j = -1; j <= 1; j++) {
                 int newRow = row + i;
                 int newCol = col + j;
-    
                 if (isValidPosition(newRow, newCol)) {
                     Cell adjacentCell = gameBoard.getCell(newRow, newCol);
-    
                     if (!adjacentCell.isRevealed() && !adjacentCell.isMine()) {
                         revealCell(newRow, newCol); // Recursively reveal adjacent cells
                     }
@@ -62,5 +52,13 @@ public class GameController {
 
     private boolean isValidPosition(int row, int col) {
         return row >= 0 && row < gameBoard.getRows() && col >= 0 && col < gameBoard.getCols();
+    }
+
+    public void toggleFlag(int row, int col) {
+        if (gameBoard.getCell(row, col).toggleFlag()) {
+            gameBoard.decrementFlagsCount();
+        } else {
+            gameBoard.incrementFlagsCount();
+        }
     }
 }

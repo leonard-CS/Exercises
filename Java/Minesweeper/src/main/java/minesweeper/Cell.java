@@ -1,15 +1,8 @@
 package minesweeper;
 
-// public class Cell {
-//     boolean isMine;
-//     boolean isRevealed;
-//     boolean isFlagged;
-//     int neighboringMines;
-// }
-
 public class Cell {
-    public final int xPos;
-    public final int yPos;
+    private final int xPos;
+    private final int yPos;
     private final boolean isMine;
     private boolean revealed;
     private boolean flagged;
@@ -17,10 +10,9 @@ public class Cell {
     private int mineImageIndex;
     private int neighboringMines;
 
-    // Constructor
     public Cell(int row, int col, boolean isMine) {
-        this.xPos = col * 32; //col + CELLSIZE
-        this.yPos = row * 32 + 64; //row * CELLSIZE + TOPBAR;
+        this.xPos = col * App.CELLSIZE; // Use constants from App
+        this.yPos = row * App.CELLSIZE + App.TOPBAR;
         this.isMine = isMine;
         this.revealed = false;
         this.flagged = false;
@@ -54,39 +46,37 @@ public class Cell {
         return neighboringMines;
     }
 
-    // Setters
-    public void setRevealed(boolean revealed) {
-        this.revealed = revealed;
+    public int getXPos() {
+        return xPos;
     }
 
-    public void setFlagged(boolean flagged) {
-        this.flagged = flagged;
+    public int getYPos() {
+        return yPos;
+    }
+
+    // Setters
+    public void reveal() {
+        if (!flagged) {
+            this.revealed = true;
+        }
+    }
+
+    public boolean toggleFlag() {
+        if (!revealed) {
+            this.flagged = !this.flagged;
+        }
+        return this.flagged;
     }
 
     public void setExploded(boolean exploded) {
         this.exploded = exploded;
     }
 
-    public void inccMineImageIndex() {
+    public void incrementMineImageIndex() {
         mineImageIndex++;
     }
 
-    public void setNeighboringMines(int neighboringMines) {
-        this.neighboringMines = neighboringMines;
-    }
-
-    // Utility methods
-    public boolean reveal() {
-        if (!flagged) {
-            this.revealed = true;
-            return true;
-        }
-        return false;
-    }
-
-    public void toggleFlag() {
-        if (!revealed) {
-            this.flagged = !this.flagged;
-        }
+    public void setNeighboringMines(int count) {
+        this.neighboringMines = count;
     }
 }
