@@ -21,9 +21,9 @@ public class App extends PApplet {
     private GameController gameController;
 
     public static final int CELLSIZE = 32; //8;
-    public static final int CELLHEIGHT = 32;
+    // public static final int CELLHEIGHT = 32;
 
-    public static final int CELLAVG = 32;
+    // public static final int CELLAVG = 32;
     public static final int TOPBAR = 64;
     public static int WIDTH = 864; //CELLSIZE*BOARD_WIDTH;
     public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;
@@ -37,13 +37,12 @@ public class App extends PApplet {
 
     public String configPath;
 
-    public static Random random = new Random();
+    private static Random random = new Random();
 
     private long startTime;
     private long gameTime;
 
     private int explodeFrames;
-    private int mineIndex;
 
     private PImage flagImage;
     private PImage[] tileImages;
@@ -102,18 +101,17 @@ public class App extends PApplet {
         }
 
         // Load the mine images
-        mineImages = new PImage[9];
+        mineImages = new PImage[10];
         for (int i = 0; i < mineImages.length; i++) {
             mineImages[i] = loadImage("src/main/resources/minesweeper/mine" + i + ".png");
         }
     }
 
     private void startGame() {
-        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, NUM_MINES); // Reinitialize game board
+        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, NUM_MINES, random); // Reinitialize game board
         gameController = new GameController(gameBoard); // Reinitialize game controller
         startTime = millis(); // Reset start time
-        explodeFrames = 0;
-        mineIndex = 0;
+        explodeFrames = -1;
     }
 
     /**
@@ -212,10 +210,6 @@ public class App extends PApplet {
     }
 
     private void drawBoard() {
-        if (gameBoard.isGameOver()) {
-            explodeFrames++;
-        }
-
         // Iterate through each cell in the game board
         for (int row = 0; row < BOARD_HEIGHT - 2; row++) {
             for (int col = 0; col < BOARD_WIDTH; col++) {
@@ -240,10 +234,34 @@ public class App extends PApplet {
                     gameBoard.setWin(true);
                     drawWin();
                 }
-                if (gameBoard.isGameOver() && cell.isMine()) {
-                    drawExplosionEffect(cell, x, y);
+            }
+        }
+
+        if (gameBoard.isGameOver()) {
+            updateMine();
+            drawExplodingMines();
+        }
+
+    }
+
+    private void updateMine() {
+        explodeFrames++;
+        if (explodeFrames % 3 == 0) {
+            for (Cell cell : gameBoard.minesExploding) {
+                if (cell.getMineImageIndex() < mineImages.length - 1) {
+                    cell.inccMineImageIndex();
                 }
             }
+            if (gameBoard.minesToExplode.size() > 0) {
+                gameBoard.minesExploding.add(gameBoard.minesToExplode.remove(0));
+                System.out.println("mine added to minesExploding");
+            }
+        }
+    }
+
+    private void drawExplodingMines() {
+        for (Cell cell : gameBoard.minesExploding) {
+            drawExplosionEffect(cell, cell.xPos, cell.yPos);
         }
     }
 
@@ -272,8 +290,8 @@ public class App extends PApplet {
     }
 
     private void drawExplosionEffect(Cell cell, int x, int y) {
-        mineIndex = Math.min(explodeFrames / 3, mineImages.length - 1);
-        image(mineImages[mineIndex], x, y, CELLSIZE, CELLSIZE);
+        System.out.println("mine index" + cell.getMineImageIndex());
+        image(mineImages[cell.getMineImageIndex()], x, y, CELLSIZE, CELLSIZE);
 
         textSize(64);
         fill(255, 0, 0); // Red color for text

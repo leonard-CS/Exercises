@@ -8,19 +8,24 @@ package minesweeper;
 // }
 
 public class Cell {
+    public final int xPos;
+    public final int yPos;
     private final boolean isMine;
     private boolean revealed;
     private boolean flagged;
     private boolean exploded;
-    private int explodeFrame;
+    private int mineImageIndex;
     private int neighboringMines;
 
     // Constructor
-    public Cell(boolean isMine) {
+    public Cell(int row, int col, boolean isMine) {
+        this.xPos = col * 32; //col + CELLSIZE
+        this.yPos = row * 32 + 64; //row * CELLSIZE + TOPBAR;
         this.isMine = isMine;
         this.revealed = false;
         this.flagged = false;
         this.exploded = false;
+        this.mineImageIndex = 0;
         this.neighboringMines = 0;
     }
 
@@ -41,6 +46,10 @@ public class Cell {
         return exploded;
     }
 
+    public int getMineImageIndex() {
+        return mineImageIndex;
+    }
+
     public int getNeighboringMines() {
         return neighboringMines;
     }
@@ -56,6 +65,10 @@ public class Cell {
 
     public void setExploded(boolean exploded) {
         this.exploded = exploded;
+    }
+
+    public void inccMineImageIndex() {
+        mineImageIndex++;
     }
 
     public void setNeighboringMines(int neighboringMines) {
@@ -76,15 +89,4 @@ public class Cell {
             this.flagged = !this.flagged;
         }
     }
-
-    @Override
-    public String toString() {
-        return "Cell{" +
-                "isMine=" + isMine +
-                ", isRevealed=" + revealed +
-                ", isFlagged=" + flagged +
-                ", neighboringMines=" + neighboringMines +
-                '}';
-    }
 }
-

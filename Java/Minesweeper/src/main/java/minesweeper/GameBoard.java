@@ -1,5 +1,7 @@
 package minesweeper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameBoard {
@@ -10,16 +12,20 @@ public class GameBoard {
     private int flagsCount;
     public int revealCount;
     private final Random random;
+    public List<Cell> minesToExplode;
+    public List<Cell> minesExploding;
 
-    public GameBoard(int rows, int cols, int numMines) {
+    public GameBoard(int rows, int cols, int numMines, Random random) {
         // Initialize board
         this.board = new Cell[rows][cols];
         this.numMines = numMines;
         this.flagsCount = 0;
         this.revealCount = 0;
-        this.random = new Random();
+        this.random = random;
         this.win = false;
         this.gameOver = false;
+        this.minesToExplode = new ArrayList<>();
+        this.minesExploding = new ArrayList<>();
 
         // Initialize the board
         initializeBoard();
@@ -30,7 +36,7 @@ public class GameBoard {
     private void initializeBoard() {
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[0].length; c++) {
-                board[r][c] = new Cell(false); // Initialize with no mines
+                board[r][c] = new Cell(r, c, false); // Initialize with no mines
             }
         }
     }
@@ -41,7 +47,9 @@ public class GameBoard {
             int r = random.nextInt(board.length);
             int c = random.nextInt(board[0].length);
             if (!board[r][c].isMine()) {
-                board[r][c] = new Cell(true);
+                Cell cell = new Cell(r, c, true);
+                board[r][c] = cell;
+                minesToExplode.add(cell);
                 placedMines++;
             }
         }

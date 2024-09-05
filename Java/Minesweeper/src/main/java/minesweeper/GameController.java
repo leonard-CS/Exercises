@@ -1,5 +1,7 @@
 package minesweeper;
 
+import org.checkerframework.checker.units.qual.min;
+
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
@@ -8,14 +10,6 @@ public class GameController {
 
     public GameController(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
-    }
-
-    public void handleMousePress(MouseEvent e) {
-        // Handle mouse press events
-    }
-
-    public void handleKeyPress(KeyEvent e) {
-        // Handle key press events
     }
 
     public void revealCell(int row, int col) {
@@ -32,8 +26,20 @@ public class GameController {
         if (cell.isMine()) {
             cell.setExploded(true);
             gameBoard.setGameOver(true);
+            setupMinesToExplodeList(cell);
         } else if (cell.getNeighboringMines() == 0) {
             revealAdjacentCells(row, col);
+        }
+    }
+
+    private void setupMinesToExplodeList(Cell firstMine) {
+        for (int i = 0; i < gameBoard.minesToExplode.size(); i++) {
+            Cell mine = gameBoard.minesToExplode.get(i);
+            if (mine.xPos == firstMine.xPos && mine.yPos == firstMine.yPos) {
+                gameBoard.minesToExplode.remove(i);
+                gameBoard.minesToExplode.add(0, firstMine);
+                return;
+            }
         }
     }
 
