@@ -23,7 +23,7 @@ public class App extends PApplet {
     public static final int TOPBAR = 64;
     public static int WIDTH = 576; //CELLSIZE*BOARD_WIDTH;
     public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;
-    public static final int BOARD_WIDTH = WIDTH/CELLSIZE;
+    public static final int BOARD_WIDTH = WIDTH/CELLSIZE; //18
     public static final int BOARD_HEIGHT = 20;
 
     public static final int INITIAL_PARACHUTES = 1;
@@ -35,14 +35,19 @@ public class App extends PApplet {
     public static Random random = new Random();
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
+
+    private GameBoard gameBoard;
+
     // Images
+    private int NUM_IMAGES = 5;
     private PImage entryPointImage;
     private PImage tileImage;
-    private PImage[] ballsImages;
-    private PImage[] holesImages;
-    private PImage[] wallsImages;
+    private PImage[] ballsImages = new PImage[NUM_IMAGES];
+    private PImage[] holesImages = new PImage[NUM_IMAGES];
+    private PImage[] wallsImages = new PImage[NUM_IMAGES];
 
     private int currentLevelIndex = 0;
+    private String layout;
 
     public App() {
         this.configPath = "config.json";
@@ -77,37 +82,31 @@ public class App extends PApplet {
         // For debugging, print out the JSON object
         // println(config);
 
-        startLevel(config);
+        loadLevelConfig(config);
+        startLevel();
+    }
+
+    private void startLevel() {
+        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, layout, entryPointImage, tileImage, holesImages, wallsImages);
+        // gameBoard.printBoard();
     }
 
     private void loadImages() {
         entryPointImage = loadImage("src/main/resources/inkball/entrypoint.png");
         tileImage = loadImage("src/main/resources/inkball/tile.png");
 
-        int numBalls = 5;
-        ballsImages = new PImage[numBalls];
-        for (int i = 0; i < numBalls; i++) {
+        for (int i = 0; i < NUM_IMAGES; i++) {
             ballsImages[i] = loadImage("src/main/resources/inkball/ball" + i + ".png");
-        }
-
-        int numHoles = 5;
-        holesImages = new PImage[numHoles];
-        for (int i = 0; i < numHoles; i++) {
             holesImages[i] = loadImage("src/main/resources/inkball/hole" + i + ".png");
-        }
-        
-        int numWalls = 5;
-        wallsImages = new PImage[numWalls];
-        for (int i = 0; i < numWalls; i++) {
             wallsImages[i] = loadImage("src/main/resources/inkball/wall" + i + ".png");
         }
     }
 
-    private void startLevel(JSONObject config) {
+    private void loadLevelConfig(JSONObject config) {
         JSONArray levels = config.getJSONArray("levels");
         JSONObject currentLevel = levels.getJSONObject(currentLevelIndex);
 
-        String layout = currentLevel.getString("layout");
+        layout = currentLevel.getString("layout");
         int levelTime = currentLevel.getInt("time");
         int levelSpawnInterval = currentLevel.getInt("spawn_interval");
         float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
@@ -171,7 +170,7 @@ public class App extends PApplet {
         //----------------------------------
         //display Board for current level:
         //----------------------------------
-        //TODO
+        drawBoard();
 
         //----------------------------------
         //display score
@@ -185,6 +184,17 @@ public class App extends PApplet {
     }
 
 
+    private void drawBoard() {
+        for (int row = 0; row < gameBoard.numRows; row++) {
+            for (int col = 0; col < gameBoard.numCols; col++) {
+                Cell cell = gameBoard.getCell(row, col);
+                if (cell != null) {
+                    cell.draw(this, row, col);
+                }
+            }
+        }
+    }
+    
     public static void main(String[] args) {
         PApplet.main("inkball.App");
     }
