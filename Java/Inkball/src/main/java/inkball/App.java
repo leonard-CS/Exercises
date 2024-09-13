@@ -35,6 +35,12 @@ public class App extends PApplet {
     public static Random random = new Random();
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
+    // Images
+    private PImage entryPointImage;
+    private PImage tileImage;
+    private PImage[] ballsImages;
+    private PImage[] holesImages;
+    private PImage[] wallsImages;
 
     private int currentLevelIndex = 0;
 
@@ -65,12 +71,36 @@ public class App extends PApplet {
         }*/
 
         frameRate(FPS);
+        loadImages();
         // Load the JSON configuration file
         JSONObject config = loadJSONObject(configPath);
         // For debugging, print out the JSON object
         // println(config);
 
         startLevel(config);
+    }
+
+    private void loadImages() {
+        entryPointImage = loadImage("src/main/resources/inkball/entrypoint.png");
+        tileImage = loadImage("src/main/resources/inkball/tile.png");
+
+        int numBalls = 5;
+        ballsImages = new PImage[numBalls];
+        for (int i = 0; i < numBalls; i++) {
+            ballsImages[i] = loadImage("src/main/resources/inkball/ball" + i + ".png");
+        }
+
+        int numHoles = 5;
+        holesImages = new PImage[numHoles];
+        for (int i = 0; i < numHoles; i++) {
+            holesImages[i] = loadImage("src/main/resources/inkball/hole" + i + ".png");
+        }
+        
+        int numWalls = 5;
+        wallsImages = new PImage[numWalls];
+        for (int i = 0; i < numWalls; i++) {
+            wallsImages[i] = loadImage("src/main/resources/inkball/wall" + i + ".png");
+        }
     }
 
     private void startLevel(JSONObject config) {
