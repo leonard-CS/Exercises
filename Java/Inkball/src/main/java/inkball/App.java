@@ -36,6 +36,8 @@ public class App extends PApplet {
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
+    private int currentLevelIndex = 0;
+
     public App() {
         this.configPath = "config.json";
     }
@@ -53,8 +55,7 @@ public class App extends PApplet {
      */
 	@Override
     public void setup() {
-        frameRate(FPS);
-		//See PApplet javadoc:
+        //See PApplet javadoc:
 		//loadJSONObject(configPath)
 		// the image is loaded from relative path: "src/main/resources/inkball/..."
 		/*try {
@@ -62,6 +63,38 @@ public class App extends PApplet {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }*/
+
+        frameRate(FPS);
+        // Load the JSON configuration file
+        JSONObject config = loadJSONObject(configPath);
+        // For debugging, print out the JSON object
+        // println(config);
+
+        startLevel(config);
+    }
+
+    private void startLevel(JSONObject config) {
+        JSONArray levels = config.getJSONArray("levels");
+        JSONObject currentLevel = levels.getJSONObject(currentLevelIndex);
+
+        String layout = currentLevel.getString("layout");
+        int levelTime = currentLevel.getInt("time");
+        int levelSpawnInterval = currentLevel.getInt("spawn_interval");
+        float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
+        float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
+        JSONArray balls = currentLevel.getJSONArray("balls");
+
+        printLevelInfo(layout, levelTime, levelSpawnInterval, levelScoreIncreaseModifier, levelScoreDecreaseModifier, balls);
+    }
+
+    private void printLevelInfo(String layout, int levelTime, int levelSpawnInterval, float levelScoreIncreaseModifier, float levelScoreDecreaseModifier, JSONArray balls) {
+        println("Level " + (currentLevelIndex + 1) + ":");
+        println("  Layout: " + layout);
+        println("  Time: " + levelTime);
+        println("  Spawn Interval: " + levelSpawnInterval);
+        println("  Score Increase Modifier: " + levelScoreIncreaseModifier);
+        println("  Score Decrease Modifier: " + levelScoreDecreaseModifier);
+        println("  Balls: " + balls.join(", "));
     }
 
     /**
