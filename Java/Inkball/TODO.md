@@ -6,8 +6,8 @@
 - [ ] Unspawned balls are shown in the top left corner (max 5) and move left 1px/frame when one spawns.
 
 ## Timers and Spawning
-- [ ] Ball spawn timer and level time are correct according to the configuration file.
-- [ ] Level time decreases each second.
+- [x] Ball spawn timer and level time are correct according to the configuration file.
+- [x] Level time decreases each second.
 - [ ] Ball spawn timer decreases each second in increments of 0.1 seconds.
 - [ ] Balls spawn when the spawn timer reaches 0. A random spawner is chosen.
 

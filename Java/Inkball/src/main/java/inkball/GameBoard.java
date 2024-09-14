@@ -4,28 +4,70 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import processing.core.PApplet;
 import processing.core.PImage;
+import processing.data.JSONArray;
+import processing.data.JSONObject;
 
 public class GameBoard {
     public final int numRows;
     public final int numCols;
     private Cell[][] board;
+    private PApplet pApplet;
+
+    private final int currentLevelIndex;
+    private String layout;
+
+    // Times
+    public final long startTime;
+    private int levelTime;
+    private int spawnInterval;
+
+    // Scores
+    private int score = 0;
 
     // Images
-    private final PImage[] holeImages;
-    private final PImage entryPointImage;
-    private final PImage[] wallImages;
-    private final PImage tileImage;
+    private final int NUM_IMAGES = 5;
+    private PImage entryPointImage;
+    private PImage tileImage;
+    private PImage[] holeImages = new PImage[NUM_IMAGES];
+    private PImage[] wallImages = new PImage[NUM_IMAGES];
 
-    public GameBoard(int numRows, int numCols, String layout, PImage entryPointImage, PImage tileImage, PImage[] holeImages, PImage[] wallImages) {
+    public GameBoard(int numRows, int numCols, PApplet pApplet, int currentLevelIndex, JSONObject config) {
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = new Cell[numRows][numCols];
-        this.entryPointImage = entryPointImage;
-        this.tileImage = tileImage;
-        this.holeImages = holeImages;
-        this.wallImages = wallImages;
+
+        this.pApplet = pApplet;
+        this.currentLevelIndex = currentLevelIndex;
+        this.startTime = pApplet.millis();
+        loadImages();
+        loadLevelConfig(config);
         createBoard(layout);
+    }
+
+    private void loadLevelConfig(JSONObject config) {
+        JSONArray levels = config.getJSONArray("levels");
+        JSONObject currentLevel = levels.getJSONObject(currentLevelIndex);
+        
+        layout = currentLevel.getString("layout");
+        levelTime = currentLevel.getInt("time");
+        spawnInterval = currentLevel.getInt("spawn_interval");
+        float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
+        float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
+        JSONArray balls = currentLevel.getJSONArray("balls");
+        
+        // printLevelInfo(layout, levelTime, levelSpawnInterval, levelScoreIncreaseModifier, levelScoreDecreaseModifier, balls);
+    }
+
+    private void loadImages() {
+        entryPointImage = pApplet.loadImage("src/main/resources/inkball/entrypoint.png");
+        tileImage = pApplet.loadImage("src/main/resources/inkball/tile.png");
+
+        for (int i = 0; i < NUM_IMAGES; i++) {
+            holeImages[i] = pApplet.loadImage("src/main/resources/inkball/hole" + i + ".png");
+            wallImages[i] = pApplet.loadImage("src/main/resources/inkball/wall" + i + ".png");
+        }
     }
 
     private void createBoard(String filePath) {
@@ -80,5 +122,17 @@ public class GameBoard {
     // Getters and setters
     public Cell getCell(int r, int c) {
         return board[r][c];
+    }
+
+    public int getLevelTime() {
+        return levelTime;
+    }
+
+    public int getSpawnInterval() {
+        return spawnInterval;
+    }
+
+    public int getScore() {
+        return score;
     }
 }

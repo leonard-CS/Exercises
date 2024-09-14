@@ -40,14 +40,11 @@ public class App extends PApplet {
 
     // Images
     private int NUM_IMAGES = 5;
-    private PImage entryPointImage;
-    private PImage tileImage;
     private PImage[] ballsImages = new PImage[NUM_IMAGES];
-    private PImage[] holesImages = new PImage[NUM_IMAGES];
-    private PImage[] wallsImages = new PImage[NUM_IMAGES];
 
     private int currentLevelIndex = 0;
     private String layout;
+    private int levelTime;
 
     public App() {
         this.configPath = "config.json";
@@ -76,44 +73,38 @@ public class App extends PApplet {
         }*/
 
         frameRate(FPS);
-        loadImages();
+        loadBallImages();
         // Load the JSON configuration file
         JSONObject config = loadJSONObject(configPath);
         // For debugging, print out the JSON object
         // println(config);
 
         loadLevelConfig(config);
-        startLevel();
+        startLevel(config);
     }
 
-    private void startLevel() {
-        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, layout, entryPointImage, tileImage, holesImages, wallsImages);
-        // gameBoard.printBoard();
-    }
-
-    private void loadImages() {
-        entryPointImage = loadImage("src/main/resources/inkball/entrypoint.png");
-        tileImage = loadImage("src/main/resources/inkball/tile.png");
-
+    private void loadBallImages() {
         for (int i = 0; i < NUM_IMAGES; i++) {
             ballsImages[i] = loadImage("src/main/resources/inkball/ball" + i + ".png");
-            holesImages[i] = loadImage("src/main/resources/inkball/hole" + i + ".png");
-            wallsImages[i] = loadImage("src/main/resources/inkball/wall" + i + ".png");
         }
     }
 
     private void loadLevelConfig(JSONObject config) {
         JSONArray levels = config.getJSONArray("levels");
         JSONObject currentLevel = levels.getJSONObject(currentLevelIndex);
-
+        
         layout = currentLevel.getString("layout");
-        int levelTime = currentLevel.getInt("time");
+        levelTime = currentLevel.getInt("time");
         int levelSpawnInterval = currentLevel.getInt("spawn_interval");
         float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
         float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
         JSONArray balls = currentLevel.getJSONArray("balls");
-
+        
         printLevelInfo(layout, levelTime, levelSpawnInterval, levelScoreIncreaseModifier, levelScoreDecreaseModifier, balls);
+    }
+
+    private void startLevel(JSONObject config) {
+        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, this, currentLevelIndex, config);
     }
 
     private void printLevelInfo(String layout, int levelTime, int levelSpawnInterval, float levelScoreIncreaseModifier, float levelScoreDecreaseModifier, JSONArray balls) {
@@ -165,11 +156,12 @@ public class App extends PApplet {
      */
 	@Override
     public void draw() {
-        
+        background(200);
 
         //----------------------------------
         //display Board for current level:
         //----------------------------------
+        drawTopBar();
         drawBoard();
 
         //----------------------------------
@@ -184,6 +176,31 @@ public class App extends PApplet {
     }
 
 
+    private void drawTopBar() {
+        fill(0);
+        rect(CELLSIZE/2, CELLSIZE/2, CELLSIZE*5, CELLSIZE);
+
+        // Draw Score
+        textSize(24);
+        textAlign(RIGHT, TOP);
+        String scoreMessage = String.format("Score: %4d", gameBoard.getScore());
+        text(scoreMessage, WIDTH - CELLSIZE/2, 0);
+
+        long elapsedTime = millis() - gameBoard.startTime;
+
+        // Draw Main Timer
+        int remainingTime = gameBoard.getLevelTime() - (int) (elapsedTime/1000);
+        String timeMessage = String.format("Time: %4d", remainingTime);
+        text(timeMessage, WIDTH - CELLSIZE/2, CELLSIZE);
+
+        // Draw Spawn Timer
+        int spawnInterval = gameBoard.getSpawnInterval() * 10;
+        int spawnTime = spawnInterval - (int) ((elapsedTime / 100) % spawnInterval);
+        textAlign(LEFT, CENTER);
+        String spawnMessage = String.format("%2d.%1d", spawnTime / 10, spawnTime % 10);
+        text(spawnMessage, CELLSIZE*6, CELLSIZE);
+    }
+
     private void drawBoard() {
         for (int row = 0; row < gameBoard.numRows; row++) {
             for (int col = 0; col < gameBoard.numCols; col++) {
@@ -194,7 +211,7 @@ public class App extends PApplet {
             }
         }
     }
-    
+
     public static void main(String[] args) {
         PApplet.main("inkball.App");
     }
