@@ -6,7 +6,9 @@ import processing.core.PVector;
 import java.util.ArrayList;
 
 public class Line {
-    private ArrayList<PVector> points;
+    private static final float LINE_THICKNESS = 10;
+    private static final float COLLISION_THRESHOLD = 10.0f;
+    private final ArrayList<PVector> points;
 
     public Line(float x, float y) {
         points = new ArrayList<>();
@@ -19,7 +21,7 @@ public class Line {
 
     public void draw(PApplet p) {
         p.stroke(0);
-        p.strokeWeight(2);
+        p.strokeWeight(LINE_THICKNESS);
         p.noFill();
 
         p.beginShape();
@@ -27,5 +29,15 @@ public class Line {
             p.curveVertex(point.x, point.y);
         }
         p.endShape();
+    }
+
+    public boolean isMouseNear(int mouseX, int mouseY) {
+        for (PVector point : points) {
+            float distance = PVector.dist(new PVector(mouseX, mouseY), point);
+            if (distance < COLLISION_THRESHOLD) {
+                return true;
+            }
+        }
+        return false;
     }
 }

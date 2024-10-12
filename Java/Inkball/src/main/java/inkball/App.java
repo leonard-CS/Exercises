@@ -142,12 +142,27 @@ public class App extends PApplet {
 	@Override
     public void mouseDragged(MouseEvent e) {
         // add line segments to player-drawn line object if left mouse button is held
-        if (currentLine != null) {
-            currentLine.addPoint(mouseX, mouseY);
+        if (e.getButton() == LEFT) {
+            if (currentLine != null) {
+                currentLine.addPoint(mouseX, mouseY);
+            }
         }
-		
+
 		// remove player-drawn line object if right mouse button is held 
 		// and mouse position collides with the line
+        if (e.getButton() == RIGHT || (e.getButton() == LEFT && e.isControlDown())) {
+            removeCollidingLine(mouseX, mouseY);
+        }
+    }
+
+    private void removeCollidingLine(int mouseX, int mouseY) {
+        // Loop through all lines to check for collision
+        for (Line line : lines) {
+            if (line.isMouseNear(mouseX, mouseY)) {
+                lines.remove(line);
+                break;
+            }
+        }
     }
 
     @Override

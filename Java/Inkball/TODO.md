@@ -17,8 +17,8 @@
 - [ ] No bugs exist with ball/wall collisions (i.e., balls cannot clip into walls or cling unnaturally to the edge of walls).
 
 ## Player Interaction
-- [ ] Players can draw lines in the game with the left mouse button, which are black and have a thickness of 10 units.
-- [ ] Players can remove drawn lines with the right mouse button or alternatively ctrl+left click.
+- [x] Players can draw lines in the game with the left mouse button, which are black and have a thickness of 10 units.
+- [x] Players can remove drawn lines with the right mouse button or alternatively ctrl+left click.
 - [ ] Player-drawn lines have a hitbox that reflects balls based on the normal vector of the line segment that’s hit. When a collision occurs, they are removed.
 
 ## Ball and Hole Mechanics
