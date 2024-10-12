@@ -7,11 +7,6 @@ import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
-import java.io.*;
 import java.util.*;
 
 public class App extends PApplet {
@@ -37,10 +32,12 @@ public class App extends PApplet {
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
     private GameBoard gameBoard;
+    private ArrayList<Line> lines;
+    private Line currentLine;
 
     // Images
-    private int NUM_IMAGES = 5;
-    private PImage[] ballsImages = new PImage[NUM_IMAGES];
+    private final int NUM_IMAGES = 5;
+    private final PImage[] ballsImages = new PImage[NUM_IMAGES];
 
     private int currentLevelIndex = 0;
     private String layout;
@@ -81,6 +78,8 @@ public class App extends PApplet {
 
         loadLevelConfig(config);
         startLevel(config);
+
+        lines = new ArrayList<>();
     }
 
     private void loadBallImages() {
@@ -136,11 +135,16 @@ public class App extends PApplet {
     @Override
     public void mousePressed(MouseEvent e) {
         // create a new player-drawn line object
+        currentLine = new Line(mouseX, mouseY);
+        lines.add(currentLine);
     }
 	
 	@Override
     public void mouseDragged(MouseEvent e) {
         // add line segments to player-drawn line object if left mouse button is held
+        if (currentLine != null) {
+            currentLine.addPoint(mouseX, mouseY);
+        }
 		
 		// remove player-drawn line object if right mouse button is held 
 		// and mouse position collides with the line
@@ -148,7 +152,7 @@ public class App extends PApplet {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-		
+		currentLine = null;
     }
 
     /**
@@ -163,6 +167,18 @@ public class App extends PApplet {
         //----------------------------------
         drawTopBar();
         drawBoard();
+
+        //----------------------------------
+        //display lines
+        //----------------------------------
+        for (Line line : lines) {
+            line.draw(this);
+        }
+//
+//        if (currentLine != null) {
+//            currentLine.setEnd(mouseX, mouseY);
+//            currentLine.draw(this);
+//        }
 
         //----------------------------------
         //display score
