@@ -271,7 +271,7 @@ public class App extends PApplet {
             for (int col = 0; col < gameBoard.numCols; col++) {
                 Cell cell = gameBoard.getCell(row, col);
                 if (cell != null) {
-                    cell.draw(this, row, col);
+                    cell.draw(this);
                 }
             }
         }

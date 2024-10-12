@@ -56,8 +56,6 @@ public class GameBoard {
         float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
         float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
         JSONArray balls = currentLevel.getJSONArray("balls");
-        
-        // printLevelInfo(layout, levelTime, levelSpawnInterval, levelScoreIncreaseModifier, levelScoreDecreaseModifier, balls);
     }
 
     private void loadImages() {
@@ -70,51 +68,68 @@ public class GameBoard {
         }
     }
 
-    private void createBoard(String filePath) {
+    private void createBoard(String layout) {
         initializeBoardWithTiles();
-        
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(layout))) {
             for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
                 String line = br.readLine();
                 if (line != null) {
-                    for (int colIndex = 0; colIndex < numCols; colIndex++) {
-                        char cellChar = line.charAt(colIndex);
-                        switch (cellChar) {
-                            case 'X':
-                                board[rowIndex][colIndex] = new WallCell(wallImages[0]);
-                                break;
-                            case 'S':
-                                board[rowIndex][colIndex] = new WallCell(entryPointImage);
-                                break;
-                            case 'H':
-                                board[rowIndex][colIndex] = new HoleCell(holeImages[line.charAt(colIndex+1) - '0']);
-                                board[rowIndex][colIndex+1] = null;
-                                board[rowIndex+1][colIndex] = null;
-                                board[rowIndex+1][colIndex+1] = null;
-                                colIndex++;
-                                break;
-                            case 'B':
-                                board[rowIndex][colIndex] = new TileCell(tileImage);
-                                colIndex++;
-                                break;
-                            default:
-                                if (cellChar >= '0' && cellChar <= '4') {
-                                    board[rowIndex][colIndex] = new WallCell(wallImages[cellChar - '0']);
-                                }
-                                break;
-                        }
-                    }
+                    parseLine(line, rowIndex);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception
+            e.printStackTrace();
         }
+    }
+
+    private void parseLine(String line, int rowIndex) {
+        for (int colIndex = 0; colIndex < numCols; colIndex++) {
+            char cellChar = line.charAt(colIndex);
+            int x = colIndex * App.CELLSIZE;
+            int y = rowIndex * App.CELLSIZE + App.TOPBAR;
+            switch (cellChar) {
+                case 'X':
+                    board[rowIndex][colIndex] = new WallCell(wallImages[0], x, y);
+                    break;
+                case 'S':
+                    board[rowIndex][colIndex] = new EntryPointCell(entryPointImage, x, y);
+                    break;
+                case 'H':
+                    createHoleCell(line, rowIndex, colIndex);
+                    colIndex++; // Skip the next index as it's part of the hole
+                    break;
+                case 'B':
+                    board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
+                    colIndex++; // Skip the next index as it's part of a tile
+                    break;
+                default:
+                    if (Character.isDigit(cellChar)) {
+                        int wallIndex = cellChar - '0';
+                        if (wallIndex < NUM_IMAGES) {
+                            board[rowIndex][colIndex] = new WallCell(wallImages[wallIndex], x, y);
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    private void createHoleCell(String line, int rowIndex, int colIndex) {
+        int holeType = line.charAt(colIndex + 1) - '0';
+        int x = colIndex * App.CELLSIZE;
+        int y = rowIndex * App.CELLSIZE + App.TOPBAR;
+        board[rowIndex][colIndex] = new HoleCell(holeImages[holeType], x, y);
+        board[rowIndex][colIndex + 1] = null;
+        board[rowIndex + 1][colIndex] = null;
+        board[rowIndex + 1][colIndex + 1] = null;
     }
 
     private void initializeBoardWithTiles() {
         for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
             for (int colIndex = 0; colIndex < numCols; colIndex++) {
-                board[rowIndex][colIndex] = new TileCell(tileImage);
+                int x = colIndex * App.CELLSIZE;
+                int y = rowIndex * App.CELLSIZE + App.TOPBAR;
+                board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
             }
         }
     }

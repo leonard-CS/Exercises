@@ -2,16 +2,20 @@ package inkball;
 
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.core.PVector;
 
 public abstract class Cell {
-    protected final PImage image;
     public static final int CELLSIZE = App.CELLSIZE;
+    protected final PImage image;
+    protected final PVector position;
 
     // Constructor to set the cell size
-    public Cell(PImage image) {
+    public Cell(PImage image, int x, int y) {
         this.image = image;
+        this.position = new PVector(x, y);
     }
 
-    // Abstract draw method
-    public abstract void draw(PApplet pApplet, int row, int col);
+    public void draw(PApplet pApplet) {
+        pApplet.image(image, position.x, position.y, CELLSIZE, CELLSIZE);
+    }
 }
