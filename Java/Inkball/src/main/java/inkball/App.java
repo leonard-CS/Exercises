@@ -1,7 +1,6 @@
 package inkball;
 
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
@@ -35,15 +34,7 @@ public class App extends PApplet {
     private ArrayList<Line> lines;
     private Line currentLine;
 
-    private ArrayList<Ball> waitingBalls;
-
-    // Images
-    private final int NUM_IMAGES = 5;
-    private final PImage[] ballsImages = new PImage[NUM_IMAGES];
-
-    private int currentLevelIndex = 0;
-    private String layout;
-    private int levelTime;
+    private int currentLevelIndex = 1;
 
     public App() {
         this.configPath = "config.json";
@@ -72,70 +63,18 @@ public class App extends PApplet {
         }*/
 
         frameRate(FPS);
-        loadBallImages();
         // Load the JSON configuration file
         JSONObject config = loadJSONObject(configPath);
         // For debugging, print out the JSON object
         // println(config);
 
-        loadLevelConfig(config);
         startLevel(config);
 
         lines = new ArrayList<>();
     }
 
-    private void loadBallImages() {
-        for (int i = 0; i < NUM_IMAGES; i++) {
-            ballsImages[i] = loadImage("src/main/resources/inkball/ball" + i + ".png");
-        }
-    }
-
-    private void loadLevelConfig(JSONObject config) {
-        JSONArray levels = config.getJSONArray("levels");
-        JSONObject currentLevel = levels.getJSONObject(currentLevelIndex);
-        
-        layout = currentLevel.getString("layout");
-        levelTime = currentLevel.getInt("time");
-        int levelSpawnInterval = currentLevel.getInt("spawn_interval");
-        float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
-        float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
-        JSONArray balls = currentLevel.getJSONArray("balls");
-        setWaitingBalls(balls);
-        
-        printLevelInfo(layout, levelTime, levelSpawnInterval, levelScoreIncreaseModifier, levelScoreDecreaseModifier, balls);
-    }
-
-    private void setWaitingBalls(JSONArray balls) {
-        waitingBalls = new ArrayList<>();
-        String color;
-        Ball ball;
-        int x, y;
-        for (int i = 0; i < balls.size(); i++) {
-            color = balls.getString(i);
-            x = CELLSIZE + CELLSIZE * i;
-            y = CELLSIZE;
-            switch (color) {
-                case "grey":
-                    ball = new Ball(ballsImages[0], x, y);
-                    break;
-                case "orange":
-                    ball = new Ball(ballsImages[1], x, y);
-                    break;
-                case "blue":
-                    ball = new Ball(ballsImages[2], x, y);
-                    break;
-                case "green":
-                    ball = new Ball(ballsImages[3], x, y);
-                    break;
-                default: // yellow
-                    ball = new Ball(ballsImages[4], x, y);
-            }
-            waitingBalls.add(ball);
-        }
-    }
-
     private void startLevel(JSONObject config) {
-        gameBoard = new GameBoard(BOARD_HEIGHT - 2, BOARD_WIDTH, this, currentLevelIndex, config);
+        gameBoard = new GameBoard(this, BOARD_HEIGHT - 2, BOARD_WIDTH, currentLevelIndex, config);
     }
 
     private void printLevelInfo(String layout, int levelTime, int levelSpawnInterval, float levelScoreIncreaseModifier, float levelScoreDecreaseModifier, JSONArray balls) {
@@ -213,20 +152,14 @@ public class App extends PApplet {
         //display Board for current level:
         //----------------------------------
         drawTopBar();
-        drawBoard();
+        gameBoard.draw();
+        gameBoard.update();
 
         //----------------------------------
         //display lines
         //----------------------------------
         for (Line line : lines) {
             line.draw(this);
-        }
-
-        //----------------------------------
-        //draw balls
-        //----------------------------------
-        for (int i = 0; i < waitingBalls.size() && i < 5; i++) {
-            waitingBalls.get(i).draw(this);
         }
 
         // ----------------------------------
@@ -239,7 +172,6 @@ public class App extends PApplet {
 		//display game end message
 
     }
-
 
     private void drawTopBar() {
         fill(0);
@@ -264,17 +196,6 @@ public class App extends PApplet {
         textAlign(LEFT, CENTER);
         String spawnMessage = String.format("%2d.%1d", spawnTime / 10, spawnTime % 10);
         text(spawnMessage, CELLSIZE*6, CELLSIZE);
-    }
-
-    private void drawBoard() {
-        for (int row = 0; row < gameBoard.numRows; row++) {
-            for (int col = 0; col < gameBoard.numCols; col++) {
-                Cell cell = gameBoard.getCell(row, col);
-                if (cell != null) {
-                    cell.draw(this);
-                }
-            }
-        }
     }
 
     public static void main(String[] args) {

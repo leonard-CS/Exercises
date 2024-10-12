@@ -3,6 +3,7 @@ package inkball;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -13,10 +14,12 @@ public class GameBoard {
     public final int numRows;
     public final int numCols;
     private Cell[][] board;
-    private PApplet pApplet;
+    private PApplet p;
 
     private final int currentLevelIndex;
     private String layout;
+
+    private ArrayList<Ball> waitingBalls;
 
     // Times
     public final long startTime;
@@ -30,19 +33,25 @@ public class GameBoard {
     private final int NUM_IMAGES = 5;
     private PImage entryPointImage;
     private PImage tileImage;
-    private PImage[] holeImages = new PImage[NUM_IMAGES];
-    private PImage[] wallImages = new PImage[NUM_IMAGES];
+    private final PImage[] holeImages = new PImage[NUM_IMAGES];
+    private final PImage[] wallImages = new PImage[NUM_IMAGES];
+    private final PImage[] ballsImages = new PImage[NUM_IMAGES];
 
-    public GameBoard(int numRows, int numCols, PApplet pApplet, int currentLevelIndex, JSONObject config) {
+    public GameBoard(PApplet p, int numRows, int numCols, int currentLevelIndex, JSONObject config) {
+        this.p = p;
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = new Cell[numRows][numCols];
 
-        this.pApplet = pApplet;
         this.currentLevelIndex = currentLevelIndex;
-        this.startTime = pApplet.millis();
-        loadImages();
+        this.startTime = p.millis();
+
+        waitingBalls = new ArrayList<>();
+
+        loadBallImages();
         loadLevelConfig(config);
+
+        loadTileImages();
         createBoard(layout);
     }
 
@@ -55,16 +64,18 @@ public class GameBoard {
         spawnInterval = currentLevel.getInt("spawn_interval");
         float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
         float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
-        JSONArray balls = currentLevel.getJSONArray("balls");
+
+        JSONArray ballsConfig = currentLevel.getJSONArray("balls");
+        loadBalls(ballsConfig);
     }
 
-    private void loadImages() {
-        entryPointImage = pApplet.loadImage("src/main/resources/inkball/entrypoint.png");
-        tileImage = pApplet.loadImage("src/main/resources/inkball/tile.png");
+    private void loadTileImages() {
+        entryPointImage = p.loadImage("src/main/resources/inkball/entrypoint.png");
+        tileImage = p.loadImage("src/main/resources/inkball/tile.png");
 
         for (int i = 0; i < NUM_IMAGES; i++) {
-            holeImages[i] = pApplet.loadImage("src/main/resources/inkball/hole" + i + ".png");
-            wallImages[i] = pApplet.loadImage("src/main/resources/inkball/wall" + i + ".png");
+            holeImages[i] = p.loadImage("src/main/resources/inkball/hole" + i + ".png");
+            wallImages[i] = p.loadImage("src/main/resources/inkball/wall" + i + ".png");
         }
     }
 
@@ -99,7 +110,7 @@ public class GameBoard {
                     colIndex++; // Skip the next index as it's part of the hole
                     break;
                 case 'B':
-                    board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
+//                    board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
                     colIndex++; // Skip the next index as it's part of a tile
                     break;
                 default:
@@ -131,6 +142,59 @@ public class GameBoard {
                 int y = rowIndex * App.CELLSIZE + App.TOPBAR;
                 board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
             }
+        }
+    }
+
+    public void draw() {
+        // Draw cells
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                Cell cell = getCell(row, col);
+                if (cell != null) {
+                    cell.draw(p);
+                }
+            }
+        }
+        // Draw waiting balls
+        System.out.println(waitingBalls.size());
+        for (int i = 0; i < waitingBalls.size() && i < 5; i++) {
+            System.out.println(i);
+            waitingBalls.get(i).draw(p);
+        }
+    }
+
+    public void update() {
+    }
+
+    // Balls
+    private void loadBallImages() {
+        for (int i = 0; i < NUM_IMAGES; i++) {
+            ballsImages[i] = p.loadImage("src/main/resources/inkball/ball" + i + ".png");
+        }
+    }
+
+    private void loadBalls(JSONArray ballsConfig) {
+        for (int i = 0; i < ballsConfig.size(); i ++) {
+            String color = ballsConfig.getString(i);
+            Ball ball = createBall(color, i);
+            waitingBalls.add(ball);
+        }
+    }
+
+    private Ball createBall(String color, int index) {
+        int x = App.CELLSIZE + App.CELLSIZE * index;
+        int y = App.CELLSIZE;
+        switch (color) {
+            case "grey":
+                return new Ball(ballsImages[0], x, y);
+            case "orange":
+                return new Ball(ballsImages[1], x, y);
+            case "blue":
+                return new Ball(ballsImages[2], x, y);
+            case "green":
+                return new Ball(ballsImages[3], x, y);
+            default: // yellow
+                return new Ball(ballsImages[4], x, y);
         }
     }
 
