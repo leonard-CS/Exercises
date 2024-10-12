@@ -35,6 +35,8 @@ public class App extends PApplet {
     private ArrayList<Line> lines;
     private Line currentLine;
 
+    private ArrayList<Ball> waitingBalls;
+
     // Images
     private final int NUM_IMAGES = 5;
     private final PImage[] ballsImages = new PImage[NUM_IMAGES];
@@ -98,8 +100,38 @@ public class App extends PApplet {
         float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
         float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
         JSONArray balls = currentLevel.getJSONArray("balls");
+        setWaitingBalls(balls);
         
         printLevelInfo(layout, levelTime, levelSpawnInterval, levelScoreIncreaseModifier, levelScoreDecreaseModifier, balls);
+    }
+
+    private void setWaitingBalls(JSONArray balls) {
+        waitingBalls = new ArrayList<>();
+        String color;
+        Ball ball;
+        int x, y;
+        for (int i = 0; i < balls.size(); i++) {
+            color = balls.getString(i);
+            x = CELLSIZE + CELLSIZE * i;
+            y = CELLSIZE;
+            switch (color) {
+                case "grey":
+                    ball = new Ball(ballsImages[0], x, y);
+                    break;
+                case "orange":
+                    ball = new Ball(ballsImages[1], x, y);
+                    break;
+                case "blue":
+                    ball = new Ball(ballsImages[2], x, y);
+                    break;
+                case "green":
+                    ball = new Ball(ballsImages[3], x, y);
+                    break;
+                default: // yellow
+                    ball = new Ball(ballsImages[4], x, y);
+            }
+            waitingBalls.add(ball);
+        }
     }
 
     private void startLevel(JSONObject config) {
@@ -189,13 +221,15 @@ public class App extends PApplet {
         for (Line line : lines) {
             line.draw(this);
         }
-//
-//        if (currentLine != null) {
-//            currentLine.setEnd(mouseX, mouseY);
-//            currentLine.draw(this);
-//        }
 
         //----------------------------------
+        //draw balls
+        //----------------------------------
+        for (int i = 0; i < waitingBalls.size() && i < 5; i++) {
+            waitingBalls.get(i).draw(this);
+        }
+
+        // ----------------------------------
         //display score
         //----------------------------------
         //TODO
