@@ -10,6 +10,6 @@ public class HoleCell extends Cell {
 
     @Override
     public void draw(PApplet pApplet) {
-        pApplet.image(image, position.x, position.y, CELLSIZE*2, CELLSIZE*2);
+        pApplet.image(image, getPosition().x, getPosition().y, CELLSIZE*2, CELLSIZE*2);
     }
 }

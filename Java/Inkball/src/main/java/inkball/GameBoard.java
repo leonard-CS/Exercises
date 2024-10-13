@@ -7,14 +7,16 @@ import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.core.PVector;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
 
 public class GameBoard {
+    private PApplet p;
     public final int numRows;
     public final int numCols;
     private Cell[][] board;
-    private PApplet p;
+    private ArrayList<EntryPointCell> spawners;
 
     private final int currentLevelIndex;
     private String layout;
@@ -44,6 +46,7 @@ public class GameBoard {
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = new Cell[numRows][numCols];
+        this.spawners = new ArrayList<>();
 
         this.currentLevelIndex = currentLevelIndex;
         this.startTime = p.millis();
@@ -106,7 +109,9 @@ public class GameBoard {
                     board[rowIndex][colIndex] = new WallCell(wallImages[0], x, y);
                     break;
                 case 'S':
-                    board[rowIndex][colIndex] = new EntryPointCell(entryPointImage, x, y);
+                    EntryPointCell spawner = new EntryPointCell(entryPointImage, x, y);
+                    board[rowIndex][colIndex] = spawner;
+                    spawners.add(spawner);
                     break;
                 case 'H':
                     createHoleCell(line, rowIndex, colIndex);
@@ -162,12 +167,17 @@ public class GameBoard {
         for (int i = 0; i < waitingBalls.size() && i < 5; i++) {
             waitingBalls.get(i).draw(p);
         }
+        // Draw running balls
+        for (Ball ball : runningBalls) {
+            ball.draw(p);
+        }
     }
 
     public void update() {
         if (getSpawnTime() == 1 && !waitingBalls.isEmpty() && waitingBallUpdateCount == 0) {
             Ball ballToJoin = waitingBalls.remove(0);
             waitingBallUpdateCount = App.CELLSIZE;
+            ballToJoin.start(getBallSpawnPosition());
             runningBalls.add(ballToJoin);
         }
         if (waitingBallUpdateCount != 0) {
@@ -177,6 +187,19 @@ public class GameBoard {
             }
             waitingBallUpdateCount--;
         }
+        if (!runningBalls.isEmpty()) {
+            for (Ball ball : runningBalls) {
+                ball.update();
+            }
+        }
+    }
+
+    private PVector getBallSpawnPosition() {
+        int index = App.random.nextInt(spawners.size());
+        PVector position = spawners.get(index).getPosition();
+        int offset = App.CELLSIZE / 2;
+        position.set(position.x + offset, position.y + offset);
+        return position;
     }
 
     // Balls

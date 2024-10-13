@@ -34,7 +34,7 @@ public class App extends PApplet {
     private ArrayList<Line> lines;
     private Line currentLine;
 
-    private int currentLevelIndex = 1;
+    private int currentLevelIndex = 0;
 
     public App() {
         this.configPath = "config.json";
