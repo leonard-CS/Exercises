@@ -183,16 +183,12 @@ public class App extends PApplet {
         String scoreMessage = String.format("Score: %4d", gameBoard.getScore());
         text(scoreMessage, WIDTH - CELLSIZE/2, 0);
 
-        long elapsedTime = millis() - gameBoard.startTime;
-
         // Draw Main Timer
-        int remainingTime = gameBoard.getLevelTime() - (int) (elapsedTime/1000);
-        String timeMessage = String.format("Time: %4d", remainingTime);
+        String timeMessage = String.format("Time: %4d", gameBoard.getRemainingTime());
         text(timeMessage, WIDTH - CELLSIZE/2, CELLSIZE);
 
         // Draw Spawn Timer
-        int spawnInterval = gameBoard.getSpawnInterval() * 10;
-        int spawnTime = spawnInterval - (int) ((elapsedTime / 100) % spawnInterval);
+        int spawnTime = gameBoard.getSpawnTime();
         textAlign(LEFT, CENTER);
         String spawnMessage = String.format("%2d.%1d", spawnTime / 10, spawnTime % 10);
         text(spawnMessage, CELLSIZE*6, CELLSIZE);

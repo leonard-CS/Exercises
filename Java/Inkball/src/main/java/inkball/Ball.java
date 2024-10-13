@@ -2,20 +2,26 @@ package inkball;
 
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.core.PVector;
 
 public class Ball {
-    private static final float BALL_SIZE = (float) (App.CELLSIZE * 0.75);
+    private static final float RADIUS = (float) ((App.CELLSIZE / 2) * 0.75);
     private final PImage image;
-    private int x, y;
+    private final PVector position;
 
     public Ball(PImage ballsImage, int x, int y) {
-        image = ballsImage;
-        this.x = x;
-        this.y = y;
+        this.image = ballsImage;
+        this.position = new PVector(x, y);
+    }
+
+    public void moveLeft(int pixels) {
+        position.x = position.x - pixels;
     }
 
     public void draw(PApplet p) {
-        int radius = (int) (BALL_SIZE/2);
-        p.image(image, x-radius, y-radius, BALL_SIZE, BALL_SIZE);
+        int x = (int) (position.x - RADIUS);
+        int y = (int) (position.y - RADIUS);
+        int diameter = (int) (RADIUS * 2);
+        p.image(image, x, y, diameter, diameter);
     }
 }

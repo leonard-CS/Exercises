@@ -19,7 +19,9 @@ public class GameBoard {
     private final int currentLevelIndex;
     private String layout;
 
-    private ArrayList<Ball> waitingBalls;
+    private int waitingBallUpdateCount = 0;
+    private final ArrayList<Ball> waitingBalls;
+    private final ArrayList<Ball> runningBalls;
 
     // Times
     public final long startTime;
@@ -47,6 +49,7 @@ public class GameBoard {
         this.startTime = p.millis();
 
         waitingBalls = new ArrayList<>();
+        runningBalls = new ArrayList<>();
 
         loadBallImages();
         loadLevelConfig(config);
@@ -156,14 +159,24 @@ public class GameBoard {
             }
         }
         // Draw waiting balls
-        System.out.println(waitingBalls.size());
         for (int i = 0; i < waitingBalls.size() && i < 5; i++) {
-            System.out.println(i);
             waitingBalls.get(i).draw(p);
         }
     }
 
     public void update() {
+        if (getSpawnTime() == 1 && !waitingBalls.isEmpty() && waitingBallUpdateCount == 0) {
+            Ball ballToJoin = waitingBalls.remove(0);
+            waitingBallUpdateCount = App.CELLSIZE;
+            runningBalls.add(ballToJoin);
+        }
+        if (waitingBallUpdateCount != 0) {
+            // Move waiting balls left 1px/frame
+            for (Ball ball : waitingBalls) {
+                ball.moveLeft(1);
+            }
+            waitingBallUpdateCount--;
+        }
     }
 
     // Balls
@@ -203,6 +216,10 @@ public class GameBoard {
         return board[r][c];
     }
 
+    public int getScore() {
+        return score;
+    }
+
     public int getLevelTime() {
         return levelTime;
     }
@@ -211,7 +228,16 @@ public class GameBoard {
         return spawnInterval;
     }
 
-    public int getScore() {
-        return score;
+    public long getElapsedTime() {
+        return p.millis() - startTime;
+    }
+
+    public int getRemainingTime() {
+        return levelTime - (int)(getElapsedTime() / 1000);
+    }
+
+    public int getSpawnTime() {
+        int spawnInterval = getSpawnInterval() * 10;
+        return spawnInterval - (int) ((getElapsedTime() / 100) % spawnInterval);
     }
 }

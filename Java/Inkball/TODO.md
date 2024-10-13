@@ -3,12 +3,12 @@
 ## Window and Display
 - [x] Window launches and shows level layout correctly (empty tiles, spawners, and walls).
 - [ ] Initial ball and hole display is correct.
-- [ ] Unspawned balls are shown in the top left corner (max 5) and move left 1px/frame when one spawns.
+- [x] Unspawned balls are shown in the top left corner (max 5) and move left 1px/frame when one spawns.
 
 ## Timers and Spawning
 - [x] Ball spawn timer and level time are correct according to the configuration file.
 - [x] Level time decreases each second.
-- [ ] Ball spawn timer decreases each second in increments of 0.1 seconds.
+- [x] Ball spawn timer decreases each second in increments of 0.1 seconds.
 - [ ] Balls spawn when the spawn timer reaches 0. A random spawner is chosen.
 
 ## Ball Movement and Collision
