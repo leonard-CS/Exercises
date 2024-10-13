@@ -24,6 +24,8 @@ public class App extends PApplet {
 
     public static final int FPS = 30;
 
+    public static final float COLLISION_THRESHOLD = 10.0f;
+
     public String configPath;
 
     public static Random random = new Random();

@@ -13,8 +13,8 @@
 
 ## Ball Movement and Collision
 - [x] Balls have a random (x, y) trajectory when spawned that is (±2, ±2) px/frame and cannot be 0.
-- [ ] Balls collide with walls, and the new trajectory is calculated correctly to reflect the velocity vector off the surface.
-- [ ] No bugs exist with ball/wall collisions (i.e., balls cannot clip into walls or cling unnaturally to the edge of walls).
+- [x] Balls collide with walls, and the new trajectory is calculated correctly to reflect the velocity vector off the surface.
+- [x] No bugs exist with ball/wall collisions (i.e., balls cannot clip into walls or cling unnaturally to the edge of walls).
 
 ## Player Interaction
 - [x] Players can draw lines in the game with the left mouse button, which are black and have a thickness of 10 units.

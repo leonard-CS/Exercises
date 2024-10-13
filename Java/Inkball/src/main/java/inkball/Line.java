@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 public class Line {
     private static final float LINE_THICKNESS = 10;
-    private static final float COLLISION_THRESHOLD = 10.0f;
     private final ArrayList<PVector> points;
 
     public Line(float x, float y) {
@@ -34,7 +33,7 @@ public class Line {
     public boolean isMouseNear(int mouseX, int mouseY) {
         for (PVector point : points) {
             float distance = PVector.dist(new PVector(mouseX, mouseY), point);
-            if (distance < COLLISION_THRESHOLD) {
+            if (distance < App.COLLISION_THRESHOLD) {
                 return true;
             }
         }

@@ -189,17 +189,14 @@ public class GameBoard {
         }
         if (!runningBalls.isEmpty()) {
             for (Ball ball : runningBalls) {
-                ball.update();
+                ball.update(this);
             }
         }
     }
 
     private PVector getBallSpawnPosition() {
         int index = App.random.nextInt(spawners.size());
-        PVector position = spawners.get(index).getPosition();
-        int offset = App.CELLSIZE / 2;
-        position.set(position.x + offset, position.y + offset);
-        return position;
+        return spawners.get(index).getCenterPosition();
     }
 
     // Balls
