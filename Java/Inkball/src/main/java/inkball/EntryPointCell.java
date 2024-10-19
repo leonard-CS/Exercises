@@ -4,6 +4,6 @@ import processing.core.PImage;
 
 public class EntryPointCell extends Cell {
     public EntryPointCell(PImage image, int x, int y) {
-        super(image, x, y);
+        super(x, y, image);
     }
 }

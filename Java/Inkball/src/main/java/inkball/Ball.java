@@ -6,12 +6,14 @@ import processing.core.PVector;
 
 public class Ball {
     private static final float RADIUS = (float) ((App.CELLSIZE / 2) * 0.75);
-    private final PImage image;
+    private PImage image;
+    private Color color;
     private PVector position;
     private PVector velocity;
 
-    public Ball(PImage ballsImage, int x, int y) {
+    public Ball(int x, int y, PImage ballsImage, inkball.Color color) {
         this.image = ballsImage;
+        this.color = color;
         this.position = new PVector(x, y);
         this.velocity = new PVector(0, 0);
     }
@@ -37,7 +39,7 @@ public class Ball {
             for (int col = 0; col < gameBoard.numCols; col++) {
                 Cell cell = gameBoard.getCell(row, col);
                 if (cell instanceof WallCell && checkCellCollision(cell)) {
-                    handleCellCollision(cell);
+                    handleCellCollision((WallCell) cell, gameBoard);
                 }
             }
         }
@@ -67,7 +69,13 @@ public class Ball {
         return distance < RADIUS + (float) App.CELLSIZE / 2;
     }
 
-    private void handleCellCollision(Cell cell) {
+    private void handleCellCollision(WallCell cell, GameBoard gameBoard) {
+        // Change ball color
+        if (cell.getColor() != Color.GREY) {
+            color = cell.getColor();
+            changeImage(gameBoard);
+        }
+
         float cellX = cell.getPosition().x;
         float cellY = cell.getPosition().y;
 
@@ -94,6 +102,10 @@ public class Ball {
             velocity.y = -velocity.y;
             position.y += velocity.y; // Move ball out of the cell
         }
+    }
+
+    private void changeImage(GameBoard gameBoard) {
+        image = gameBoard.getBallImage(color.getValue());
     }
 
     private boolean checkLineCollision(Line line) {

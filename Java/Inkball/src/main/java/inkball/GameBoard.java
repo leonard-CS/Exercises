@@ -108,7 +108,7 @@ public class GameBoard {
             int y = rowIndex * App.CELLSIZE + App.TOPBAR;
             switch (cellChar) {
                 case 'X':
-                    board[rowIndex][colIndex] = new WallCell(wallImages[0], x, y);
+                    board[rowIndex][colIndex] = new WallCell(x, y, wallImages[0], Color.fromValue(0));
                     break;
                 case 'S':
                     EntryPointCell spawner = new EntryPointCell(entryPointImage, x, y);
@@ -127,7 +127,7 @@ public class GameBoard {
                     if (Character.isDigit(cellChar)) {
                         int wallIndex = cellChar - '0';
                         if (wallIndex < NUM_IMAGES) {
-                            board[rowIndex][colIndex] = new WallCell(wallImages[wallIndex], x, y);
+                            board[rowIndex][colIndex] = new WallCell(x, y, wallImages[wallIndex], Color.fromValue(wallIndex));
                         }
                     }
                     break;
@@ -139,7 +139,7 @@ public class GameBoard {
         int holeType = line.charAt(colIndex + 1) - '0';
         int x = colIndex * App.CELLSIZE;
         int y = rowIndex * App.CELLSIZE + App.TOPBAR;
-        board[rowIndex][colIndex] = new HoleCell(holeImages[holeType], x, y);
+        board[rowIndex][colIndex] = new HoleCell(x, y, holeImages[holeType], Color.fromValue(holeType));
         board[rowIndex][colIndex + 1] = null;
         board[rowIndex + 1][colIndex] = null;
         board[rowIndex + 1][colIndex + 1] = null;
@@ -248,15 +248,15 @@ public class GameBoard {
         int y = App.CELLSIZE;
         switch (color) {
             case "grey":
-                return new Ball(ballsImages[0], x, y);
+                return new Ball(x, y, ballsImages[0], Color.fromValue(0));
             case "orange":
-                return new Ball(ballsImages[1], x, y);
+                return new Ball(x, y, ballsImages[1], Color.fromValue(1));
             case "blue":
-                return new Ball(ballsImages[2], x, y);
+                return new Ball(x, y, ballsImages[2], Color.fromValue(2));
             case "green":
-                return new Ball(ballsImages[3], x, y);
+                return new Ball(x, y, ballsImages[3], Color.fromValue(3));
             default: // yellow
-                return new Ball(ballsImages[4], x, y);
+                return new Ball(x, y, ballsImages[4], Color.fromValue(4));
         }
     }
 
@@ -292,5 +292,9 @@ public class GameBoard {
 
     public boolean isPaused() {
         return isPaused;
+    }
+
+    public PImage getBallImage(int i) {
+        return ballsImages[i];
     }
 }

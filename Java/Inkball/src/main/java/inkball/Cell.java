@@ -6,11 +6,11 @@ import processing.core.PVector;
 
 public abstract class Cell {
     public static final int CELLSIZE = App.CELLSIZE;
-    protected final PImage image;
     private final PVector position;
+    protected final PImage image;
 
     // Constructor to set the cell size
-    public Cell(PImage image, int x, int y) {
+    public Cell(int x, int y, PImage image) {
         this.image = image;
         this.position = new PVector(x, y);
     }

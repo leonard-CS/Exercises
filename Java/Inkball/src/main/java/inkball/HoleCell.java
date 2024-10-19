@@ -4,8 +4,11 @@ import processing.core.PApplet;
 import processing.core.PImage;
 
 public class HoleCell extends Cell {
-    public HoleCell(PImage image, int x, int y) {
-        super(image, x, y);
+    private final Color color;
+
+    public HoleCell(int x, int y, PImage image, Color color) {
+        super(x, y, image);
+        this.color = color;
     }
 
     @Override
