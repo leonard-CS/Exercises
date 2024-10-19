@@ -16,7 +16,8 @@ public class GameBoard {
     public final int numRows;
     public final int numCols;
     private final Cell[][] board;
-    private final ArrayList<EntryPointCell> spawners;
+    private final ArrayList<EntryPointCell> spawners = new ArrayList<>();
+    private final ArrayList<HoleCell> holes = new ArrayList<>();
 
     private final int currentLevelIndex;
     private String layout;
@@ -53,7 +54,6 @@ public class GameBoard {
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = new Cell[numRows][numCols];
-        this.spawners = new ArrayList<>();
 
         this.currentLevelIndex = currentLevelIndex;
 
@@ -140,7 +140,9 @@ public class GameBoard {
         int holeType = line.charAt(colIndex + 1) - '0';
         int x = colIndex * App.CELLSIZE;
         int y = rowIndex * App.CELLSIZE + App.TOPBAR;
-        board[rowIndex][colIndex] = new HoleCell(x, y, holeImages[holeType], Color.fromValue(holeType));
+        HoleCell holeCell = new HoleCell(x, y, holeImages[holeType], Color.fromValue(holeType));
+        holes.add(holeCell);
+        board[rowIndex][colIndex] = holeCell;
         board[rowIndex][colIndex + 1] = null;
         board[rowIndex + 1][colIndex] = null;
         board[rowIndex + 1][colIndex + 1] = null;
@@ -199,7 +201,7 @@ public class GameBoard {
             waitingBallUpdateCount--;
         }
         if (!runningBalls.isEmpty()) {
-            for (Ball ball : runningBalls) {
+            for (Ball ball : new ArrayList<>(runningBalls)) {
                 ball.update(this);
             }
         }
@@ -264,6 +266,10 @@ public class GameBoard {
     }
 
     // Getters and setters
+    public ArrayList<HoleCell> getHoles() {
+        return new ArrayList<>(holes);
+    }
+
     public Cell getCell(int r, int c) {
         return board[r][c];
     }
@@ -276,8 +282,28 @@ public class GameBoard {
         lines.remove(line);
     }
 
+    public void removeBall(Ball ball) {
+        runningBalls.remove(ball);
+    }
+
+    public void resetBall(Ball ball) {
+        runningBalls.remove(ball);
+        int x = App.CELLSIZE + App.CELLSIZE * waitingBalls.size();
+        int y = App.CELLSIZE;
+        ball.setPosition(x, y);
+        waitingBalls.add(ball);
+    }
+
     public int getScore() {
         return score;
+    }
+
+    public void increaseScore() {
+        score += 100;
+    }
+
+    public void decreaseScore() {
+        score -= 100;
     }
 
     public int getRemainingTime() {

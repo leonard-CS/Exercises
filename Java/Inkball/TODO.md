@@ -22,10 +22,10 @@
 - [x] Player-drawn lines have a hitbox that reflects balls based on the normal vector of the line segment that’s hit. When a collision occurs, they are removed.
 
 ## Ball and Hole Mechanics
-- [ ] When a ball comes close to a hole, it is attracted towards it with a force proportional to how close it is.
-- [ ] When a ball comes close to a hole, its size reduces proportionally to how close it is to the hole.
-- [ ] When a ball is directly above a hole, it is captured by the hole.
-- [ ] When a ball of a different colour to the hole is captured by it, the ball enters the respawn queue, unless it is a grey ball or grey hole.
+- [x] When a ball comes close to a hole, it is attracted towards it with a force proportional to how close it is.
+- [x] When a ball comes close to a hole, its size reduces proportionally to how close it is to the hole.
+- [x] When a ball is directly above a hole, it is captured by the hole.
+- [x] When a ball of a different colour to the hole is captured by it, the ball enters the respawn queue, unless it is a grey ball or grey hole.
 
 ## Scoring
 - [ ] Score changes correctly when balls are captured successfully or unsuccessfully, based on the colour of the ball and the score values specified in the config file, including the level multiplier.

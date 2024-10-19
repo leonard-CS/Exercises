@@ -4,8 +4,12 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 
+import static processing.core.PApplet.map;
+
 public class Ball {
-    private static final float RADIUS = (float) ((App.CELLSIZE / 2) * 0.75);
+    private static final float RADIUS = App.CELLSIZE * 0.5f * 0.75f;
+    private static final float MIN_RADIUS = 8;
+    private float currentRadius = RADIUS;
     private PImage image;
     private Color color;
     private PVector position;
@@ -21,6 +25,10 @@ public class Ball {
     public void start(PVector position) {
         this.position = position;
         this.velocity = new PVector(randomV(), randomV());
+    }
+
+    public void setPosition(int x, int y) {
+        position = new PVector(x, y);
     }
 
     private float randomV() {
@@ -41,7 +49,7 @@ public class Ball {
         checkLineCollisions(gameBoard);
 
         // Check for attraction to holes
-//        checkHoleAttractions(gameBoard);
+        checkHoleAttractions(gameBoard);
 
         // Ensure the ball stays within the screen bounds
         if (position.x < RADIUS || position.x > App.WIDTH - RADIUS) {
@@ -74,18 +82,30 @@ public class Ball {
         }
     }
 
-//    private void checkHoleAttractions(GameBoard gameBoard) {
-//        for (int row = 0; row < gameBoard.numRows; row++) {
-//            for (int col = 0; col < gameBoard.numCols; col++) {
-//                Cell cell = gameBoard.getCell(row, col);
-//                if (cell instanceof HoleCell) {
-//                    if (checkHoleAttraction((HoleCell) cell)) {
-//                        handleHoleAttraction((HoleCell) cell, gameBoard);
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private void checkHoleAttractions(GameBoard gameBoard) {
+        for (HoleCell hole : gameBoard.getHoles()) {
+            PVector holeCenter = hole.getCenterPosition();
+            float distanceToHole = PVector.dist(holeCenter, position);
+
+            if (distanceToHole < App.CELLSIZE) { // If within attraction range
+                PVector attractionForce = PVector.sub(holeCenter, position).mult(0.005f); // 0.5% attraction
+                velocity.add(attractionForce);
+
+                // Calculate size reduction based on distance to hole
+                float sizeReduction = map(distanceToHole, 0, App.CELLSIZE, 0, RADIUS - MIN_RADIUS);
+                currentRadius = RADIUS - sizeReduction;
+
+                // Check if the ball is captured by the hole
+                if (distanceToHole < currentRadius) {
+                    handleHoleCapture(hole, gameBoard);
+                    return; // Exit after capture
+                }
+                return;
+            }
+        }
+        // Reset currentRadius if not near any hole
+        currentRadius = RADIUS;
+    }
 
     private boolean checkCellCollision(Cell cell) {
         PVector cellPosition = cell.getCenterPosition();
@@ -158,10 +178,24 @@ public class Ball {
         gameBoard.removeLine(line);
     }
 
+    private void handleHoleCapture(HoleCell hole, GameBoard gameBoard) {
+        // Check for successful capture
+        if (hole.getColor() == this.color || hole.getColor() == Color.GREY || this.color == Color.GREY) {
+            // Increase score
+            gameBoard.increaseScore(); // Assuming this method exists
+            gameBoard.removeBall(this);
+        } else {
+            // Decrease score
+            gameBoard.decreaseScore(); // Assuming this method exists
+            currentRadius = RADIUS; // Reset radius
+            gameBoard.resetBall(this);
+        }
+    }
+
     public void draw(PApplet p) {
-        int x = (int) (position.x - RADIUS);
-        int y = (int) (position.y - RADIUS);
-        int diameter = (int) (RADIUS * 2);
+        int x = (int) (position.x - currentRadius);
+        int y = (int) (position.y - currentRadius);
+        int diameter = (int) (currentRadius * 2);
         p.image(image, x, y, diameter, diameter);
     }
 }
