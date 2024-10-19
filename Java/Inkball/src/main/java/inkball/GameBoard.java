@@ -308,5 +308,9 @@ public class GameBoard {
     public void start() {
         gameStart = true;
         gameStartTime = p.millis();
+        Ball ballToJoin = waitingBalls.remove(0);
+        waitingBallUpdateCount = App.CELLSIZE;
+        ballToJoin.start(getBallSpawnPosition());
+        runningBalls.add(ballToJoin);
     }
 }
