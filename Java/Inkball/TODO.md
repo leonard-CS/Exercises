@@ -28,7 +28,7 @@
 - [x] When a ball of a different colour to the hole is captured by it, the ball enters the respawn queue, unless it is a grey ball or grey hole.
 
 ## Scoring
-- [ ] Score changes correctly when balls are captured successfully or unsuccessfully, based on the colour of the ball and the score values specified in the config file, including the level multiplier.
+- [x] Score changes correctly when balls are captured successfully or unsuccessfully, based on the colour of the ball and the score values specified in the config file, including the level multiplier.
 
 ## Game State and Controls
 - [x] Spacebar causes the game to pause, and the top bar displays `*** PAUSED ***`.

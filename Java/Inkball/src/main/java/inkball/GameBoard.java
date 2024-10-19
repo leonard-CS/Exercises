@@ -40,6 +40,8 @@ public class GameBoard {
 
     // Scores
     private int score = 0;
+    private final int[] scoreIncreases = new int[5];
+    private final int[] scoreDecreases = new int[5];
 
     // Images
     private final int NUM_IMAGES = 5;
@@ -76,6 +78,16 @@ public class GameBoard {
 
         JSONArray ballsConfig = currentLevel.getJSONArray("balls");
         loadBalls(ballsConfig);
+
+        // Load score increases/decreases
+        String[] ballColors = {"grey", "orange", "blue", "green", "yellow"};
+        JSONObject scoreIncreasesConfig = config.getJSONObject("score_increase_from_hole_capture");
+        JSONObject scoreDecreasesConfig = config.getJSONObject("score_decrease_from_wrong_hole");
+
+        for (int i = 0; i < scoreIncreases.length; i++) {
+            scoreIncreases[i] = (int) (scoreIncreasesConfig.getInt(ballColors[i]) * levelScoreIncreaseModifier);
+            scoreDecreases[i] = (int) (scoreDecreasesConfig.getInt(ballColors[i]) * levelScoreDecreaseModifier);
+        }
     }
 
     private void loadTileImages() {
@@ -298,12 +310,12 @@ public class GameBoard {
         return score;
     }
 
-    public void increaseScore() {
-        score += 100;
+    public void increaseScore(Color color) {
+        score += scoreIncreases[color.getValue()];
     }
 
-    public void decreaseScore() {
-        score -= 100;
+    public void decreaseScore(Color color) {
+        score -= scoreIncreases[color.getValue()];
     }
 
     public int getRemainingTime() {

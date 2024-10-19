@@ -182,11 +182,11 @@ public class Ball {
         // Check for successful capture
         if (hole.getColor() == this.color || hole.getColor() == Color.GREY || this.color == Color.GREY) {
             // Increase score
-            gameBoard.increaseScore(); // Assuming this method exists
+            gameBoard.increaseScore(color); // Assuming this method exists
             gameBoard.removeBall(this);
         } else {
             // Decrease score
-            gameBoard.decreaseScore(); // Assuming this method exists
+            gameBoard.decreaseScore(color); // Assuming this method exists
             currentRadius = RADIUS; // Reset radius
             gameBoard.resetBall(this);
         }
