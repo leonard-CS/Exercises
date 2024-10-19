@@ -36,6 +36,14 @@ public class GameBoard {
     private int levelTime;
     private int spawnInterval;
 
+    // Yellow Tiles
+    private long lastMoveTime;
+    private long winTime;
+    private WallCell topLeftTile;
+    private WallCell bottomRightTile;
+
+    // Game Control
+    private boolean win = false;
     private boolean isPaused = false;
 
     // Scores
@@ -196,6 +204,11 @@ public class GameBoard {
         if (!isPaused) {
             update();
         }
+
+        if (win) {
+            topLeftTile.draw(p);
+            bottomRightTile.draw(p);
+        }
     }
 
     public void update() {
@@ -223,6 +236,46 @@ public class GameBoard {
             elapsed_time += delta_time;
             gameStartTime = p.millis();
         }
+
+        if (checkWinCondition() && !win) {
+            win = true;
+            winTime = p.millis();
+            addScoreForRemainingTime();
+            initializeYellowTiles();
+        }
+
+        if (win) {
+            long currentTime = p.millis();
+            long moveInterval = (long) (0.067 * 1000);
+            if (currentTime - lastMoveTime >= moveInterval) {
+                moveYellowTiles();
+                lastMoveTime = currentTime;
+            }
+            if (p.millis() - winTime >= 4.556 * 1000) {
+                ((App) p).nextLevel();
+            }
+        }
+    }
+
+    public boolean checkWinCondition() {
+        return waitingBalls.isEmpty() && runningBalls.isEmpty();
+    }
+
+    public void addScoreForRemainingTime() {
+        int remainingTime = getRemainingTime();
+        int scoreToAdd = (int)(remainingTime / 0.067); // 1 unit every 0.067 seconds
+        score += scoreToAdd;
+    }
+
+    private void initializeYellowTiles() {
+        topLeftTile = new WallCell(0, App.TOPBAR, wallImages[Color.YELLOW.getValue()], Color.YELLOW);
+        bottomRightTile = new WallCell((numCols - 1) * App.CELLSIZE, App.TOPBAR + (numRows - 1) * App.CELLSIZE,
+                                        wallImages[Color.YELLOW.getValue()], Color.YELLOW);
+    }
+
+    private void moveYellowTiles() {
+        topLeftTile.moveClockwise(numCols * App.CELLSIZE, numRows * App.CELLSIZE);
+        bottomRightTile.moveClockwise(numCols * App.CELLSIZE, numRows * App.CELLSIZE);
     }
 
     private PVector getBallSpawnPosition() {
@@ -315,7 +368,7 @@ public class GameBoard {
     }
 
     public void decreaseScore(Color color) {
-        score -= scoreIncreases[color.getValue()];
+        score -= scoreDecreases[color.getValue()];
     }
 
     public int getRemainingTime() {
@@ -339,7 +392,7 @@ public class GameBoard {
         return ballsImages[i];
     }
 
-    public boolean hasGameStart() {
+    public boolean hasGameStarted() {
         return gameStart;
     }
 

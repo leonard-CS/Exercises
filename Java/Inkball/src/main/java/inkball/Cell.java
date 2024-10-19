@@ -6,7 +6,7 @@ import processing.core.PVector;
 
 public abstract class Cell {
     public static final int CELLSIZE = App.CELLSIZE;
-    final PVector position;
+    final PVector position; // Top left corner
     protected final PImage image;
 
     // Constructor to set the cell size

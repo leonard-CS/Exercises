@@ -1,40 +1,33 @@
 package inkball;
 
 import processing.core.PApplet;
+import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
 
-import java.util.*;
+import java.util.Random;
 
 public class App extends PApplet {
 
     public static final int CELLSIZE = 32; //8;
-    public static final int CELLHEIGHT = 32;
-
-    public static final int CELLAVG = 32;
     public static final int TOPBAR = 64;
     public static int WIDTH = 576; //CELLSIZE*BOARD_WIDTH;
     public static int HEIGHT = 640; //BOARD_HEIGHT*CELLSIZE+TOPBAR;
     public static final int BOARD_WIDTH = WIDTH/CELLSIZE; //18
     public static final int BOARD_HEIGHT = 20;
 
-    public static final int INITIAL_PARACHUTES = 1;
-
     public static final int FPS = 30;
 
-    public static final float COLLISION_THRESHOLD = 10.0f;
-
     public String configPath;
+    private JSONObject config;
 
     public static Random random = new Random();
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
     private GameBoard gameBoard;
-    private Line currentLine;
-
     private int currentLevelIndex = 0;
-    private JSONObject config;
+    private Line currentLine;
 
     public App() {
         this.configPath = "config.json";
@@ -65,8 +58,6 @@ public class App extends PApplet {
         frameRate(FPS);
         // Load the JSON configuration file
         config = loadJSONObject(configPath);
-        // For debugging, print out the JSON object
-        // println(config);
         startLevel();
     }
 
@@ -74,12 +65,33 @@ public class App extends PApplet {
         gameBoard = new GameBoard(this, BOARD_HEIGHT - 2, BOARD_WIDTH, currentLevelIndex, config);
     }
 
+    public void nextLevel() {
+        // Increment the current level index
+        currentLevelIndex++;
+
+        // Check if the new level index exceeds the available levels
+        JSONArray levels = config.getJSONArray("levels");
+        if (currentLevelIndex >= levels.size()) {
+            displayWinMessage();
+        } else {
+            // Start next level
+            startLevel();
+        }
+    }
+
+    private void displayWinMessage() {
+        fill(0);
+        textSize(28);
+        textAlign(CENTER, CENTER);
+        text("*** WIN ***", WIDTH / 2.0f, TOPBAR / 2.0f);
+    }
+
     /**
      * Receive key pressed signal from the keyboard.
      */
 	@Override
     public void keyPressed(KeyEvent event){
-        if (event.getKeyCode() == ' ') {
+        if (event.getKey() == ' ') {
             gameBoard.togglePauseState();
         }
         if (event.getKey() == 'r' || event.getKey() == 'R') {
@@ -97,7 +109,7 @@ public class App extends PApplet {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (!gameBoard.hasGameStart()) {
+        if (!gameBoard.hasGameStarted()) {
             gameBoard.start();
         }
         // create a new player-drawn line object
@@ -133,56 +145,38 @@ public class App extends PApplet {
     public void draw() {
         background(200);
 
-        //----------------------------------
-        //display Board for current level:
-        //----------------------------------
         drawTopBar();
         gameBoard.draw();
-
-        //----------------------------------
-        //display lines
-        //----------------------------------
-
-        // ----------------------------------
-        //display score
-        //----------------------------------
-        //TODO
-        
-		//----------------------------------
-        //----------------------------------
-		//display game end message
-
     }
 
     private void drawTopBar() {
         fill(0);
-        rect((float) CELLSIZE / 2, (float) CELLSIZE / 2, CELLSIZE * 5, CELLSIZE);
+        rect(CELLSIZE / 2.0f, CELLSIZE / 2.0f, CELLSIZE * 5, CELLSIZE);
 
         textSize(28);
         if (gameBoard.isPaused()) {
             textAlign(CENTER, CENTER);
-            text("*** PAUSED ***", (float) WIDTH / 2, (float) TOPBAR / 2);
+            text("*** PAUSED ***", WIDTH / 2.0f, TOPBAR / 2.0f);
         }
 
         // Draw Score
         textSize(24);
         textAlign(RIGHT, TOP);
         String scoreMessage = String.format("Score: %4d", gameBoard.getScore());
-        text(scoreMessage, WIDTH - (float) CELLSIZE / 2, 0);
+        text(scoreMessage, WIDTH - CELLSIZE / 2.0f, 0);
 
         // Draw Main Timer
         String timeMessage = String.format("Time: %4d", gameBoard.getRemainingTime());
-        text(timeMessage, WIDTH - (float) CELLSIZE / 2, CELLSIZE);
+        text(timeMessage, WIDTH - CELLSIZE / 2.0f, CELLSIZE);
 
         // Draw Spawn Timer
         int spawnTime = gameBoard.getSpawnTime();
         textAlign(LEFT, CENTER);
         String spawnMessage = String.format("%2d.%1d", spawnTime / 10, spawnTime % 10);
-        text(spawnMessage, CELLSIZE*6, CELLSIZE);
+        text(spawnMessage, CELLSIZE * 6, CELLSIZE);
     }
 
     public static void main(String[] args) {
         PApplet.main("inkball.App");
     }
-
 }

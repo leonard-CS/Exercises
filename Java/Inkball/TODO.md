@@ -32,13 +32,13 @@
 
 ## Game State and Controls
 - [x] Spacebar causes the game to pause, and the top bar displays `*** PAUSED ***`.
-- [ ] The current level ends in a win when no balls remain to be spawned, and no balls are currently on the game board.
-  - [ ] Remaining time gets added to the player’s score at a rate of 1 unit every 0.067 seconds.
-  - [ ] Yellow tiles originating in the top left corner and bottom right corner move around the edge of the game board in a clockwise direction at a rate of 1 tile every 0.067 seconds.
-- [ ] When the level ends in a win, the next level is loaded.
+- [x] The current level ends in a win when no balls remain to be spawned, and no balls are currently on the game board.
+  - [x] Remaining time gets added to the player’s score at a rate of 1 unit every 0.067 seconds.
+  - [x] Yellow tiles originating in the top left corner and bottom right corner move around the edge of the game board in a clockwise direction at a rate of 1 tile every 0.067 seconds.
+- [x] When the level ends in a win, the next level is loaded.
 - [ ] When the level timer reaches 0, the level ends in a loss, meaning balls stop moving and the player can no longer draw lines. Display `=== TIME’S UP ===` in the top bar.
 - [x] The player can press ‘r’ to restart a level at any time, including when time has run out.
-- [ ] Once the game has ended, a player can restart the game by pressing ‘r’.
+- [x] Once the game has ended, a player can restart the game by pressing ‘r’.
 
 ## Code Quality
 - [ ] Ensure that your application does not repeat large sections of logic.
