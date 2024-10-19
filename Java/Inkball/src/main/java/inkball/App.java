@@ -82,6 +82,9 @@ public class App extends PApplet {
         if (event.getKeyCode() == ' ') {
             gameBoard.togglePauseState();
         }
+        if (event.getKey() == 'r' || event.getKey() == 'R') {
+            startLevel();
+        }
     }
 
     /**
