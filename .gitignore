@@ -13,3 +13,7 @@ build/
 # Gradle wrapper files
 .gradle/
 gradle/
+
+.idea/
+gradlew
+gradlew.bat
