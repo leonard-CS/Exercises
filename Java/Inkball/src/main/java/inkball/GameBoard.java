@@ -57,6 +57,7 @@ public class GameBoard {
     private PImage tileImage;
     private final PImage[] holeImages = new PImage[NUM_IMAGES];
     private final PImage[] wallImages = new PImage[NUM_IMAGES];
+    private final PImage[] bricksImages = new PImage[NUM_IMAGES];
     private final PImage[] ballsImages = new PImage[NUM_IMAGES];
 
     public GameBoard(PApplet p, int numRows, int numCols, int currentLevelIndex, JSONObject config) {
@@ -78,6 +79,7 @@ public class GameBoard {
         for (int i = 0; i < NUM_IMAGES; i++) {
             holeImages[i] = p.loadImage("src/main/resources/inkball/hole" + i + ".png");
             wallImages[i] = p.loadImage("src/main/resources/inkball/wall" + i + ".png");
+            bricksImages[i] = p.loadImage("src/main/resources/inkball/brick" + i + ".png");
             ballsImages[i] = p.loadImage("src/main/resources/inkball/ball" + i + ".png");
         }
     }
@@ -149,6 +151,26 @@ public class GameBoard {
                     break;
                 case 'B':
                     colIndex++; // Skip the next index as it's part of a tile
+                    int ballType = line.charAt(colIndex) - '0';
+                    int offset = App.CELLSIZE / 2;
+                    Ball ball = new Ball(x - offset, y - offset, ballsImages[ballType], Color.fromValue(ballType));
+                    ball.start(ball.getPosition());
+                    runningBalls.add(ball);
+                    break;
+                case 'W':
+                    board[rowIndex][colIndex] = createBrickCell(0, x, y);
+                    break;
+                case 'O':
+                    board[rowIndex][colIndex] = createBrickCell(1, x, y);
+                    break;
+                case 'I':
+                    board[rowIndex][colIndex] = createBrickCell(2, x, y);
+                    break;
+                case 'Y':
+                    board[rowIndex][colIndex] = createBrickCell(3, x, y);
+                    break;
+                case 'G':
+                    board[rowIndex][colIndex] = createBrickCell(4, x, y);
                     break;
                 default:
                     if (Character.isDigit(cellChar)) {
@@ -174,6 +196,13 @@ public class GameBoard {
         board[rowIndex + 1][colIndex + 1] = null;
     }
 
+    private BrickCell createBrickCell(int index, int x, int y) {
+        PImage[] images = new PImage[2];
+        images[0] = wallImages[index];
+        images[1] = bricksImages[index];
+        return new BrickCell(x, y, images, Color.fromValue(index));
+    }
+
     public void draw() {
         // Draw cells
         for (int row = 0; row < numRows; row++) {
@@ -197,7 +226,7 @@ public class GameBoard {
             ball.draw(p);
         }
 
-        if (!isPaused && !timesup) {
+        if (gameStart && !isPaused && !timesup) {
             updateGame();
         }
 
