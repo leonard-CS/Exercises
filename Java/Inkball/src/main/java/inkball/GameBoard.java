@@ -26,6 +26,8 @@ public class GameBoard {
     private final ArrayList<Ball> runningBalls = new ArrayList<>();
     private final ArrayList<Line> lines = new ArrayList<>();
 
+    private boolean gameStart = false;
+
     // Times
     private long gameStartTime;
     private long elapsed_time = 0;
@@ -54,7 +56,6 @@ public class GameBoard {
         this.spawners = new ArrayList<>();
 
         this.currentLevelIndex = currentLevelIndex;
-        this.gameStartTime = p.millis();
 
         loadBallImages();
         loadLevelConfig(config);
@@ -203,9 +204,11 @@ public class GameBoard {
             }
         }
         // Update Time
-        long delta_time = p.millis() - gameStartTime;
-        elapsed_time += delta_time;
-        gameStartTime = p.millis();
+        if (gameStart) {
+            long delta_time = p.millis() - gameStartTime;
+            elapsed_time += delta_time;
+            gameStartTime = p.millis();
+        }
     }
 
     private PVector getBallSpawnPosition() {
@@ -296,5 +299,14 @@ public class GameBoard {
 
     public PImage getBallImage(int i) {
         return ballsImages[i];
+    }
+
+    public boolean hasGameStart() {
+        return gameStart;
+    }
+
+    public void start() {
+        gameStart = true;
+        gameStartTime = p.millis();
     }
 }

@@ -34,25 +34,14 @@ public class Ball {
     public void update(GameBoard gameBoard) {
         position.add(velocity);
 
-        // Check for collisions with the game board cells
-        for (int row = 0; row < gameBoard.numRows; row++) {
-            for (int col = 0; col < gameBoard.numCols; col++) {
-                Cell cell = gameBoard.getCell(row, col);
-                if (cell instanceof WallCell && checkCellCollision(cell)) {
-                    handleCellCollision((WallCell) cell, gameBoard);
-                }
-            }
-        }
+        // Check for collisions with walls
+        checkCellCollisions(gameBoard);
 
         // Check for collisions with lines
-        for (Line line : gameBoard.getLines()) {
-            if (line.getPoints().size() < 2) {
-                continue;
-            }
-            if (checkLineCollision(line)) {
-                handleLineCollision(line, gameBoard);
-            }
-        }
+        checkLineCollisions(gameBoard);
+
+        // Check for attraction to holes
+//        checkHoleAttractions(gameBoard);
 
         // Ensure the ball stays within the screen bounds
         if (position.x < RADIUS || position.x > App.WIDTH - RADIUS) {
@@ -62,6 +51,41 @@ public class Ball {
             velocity.y = -velocity.y;
         }
     }
+
+    private void checkCellCollisions(GameBoard gameBoard) {
+        for (int row = 0; row < gameBoard.numRows; row++) {
+            for (int col = 0; col < gameBoard.numCols; col++) {
+                Cell cell = gameBoard.getCell(row, col);
+                if (cell instanceof WallCell && checkCellCollision(cell)) {
+                    handleCellCollision((WallCell) cell, gameBoard);
+                }
+            }
+        }
+    }
+
+    private void checkLineCollisions(GameBoard gameBoard) {
+        for (Line line : gameBoard.getLines()) {
+            if (line.getPoints().size() < 2) {
+                continue;
+            }
+            if (checkLineCollision(line)) {
+                handleLineCollision(line, gameBoard);
+            }
+        }
+    }
+
+//    private void checkHoleAttractions(GameBoard gameBoard) {
+//        for (int row = 0; row < gameBoard.numRows; row++) {
+//            for (int col = 0; col < gameBoard.numCols; col++) {
+//                Cell cell = gameBoard.getCell(row, col);
+//                if (cell instanceof HoleCell) {
+//                    if (checkHoleAttraction((HoleCell) cell)) {
+//                        handleHoleAttraction((HoleCell) cell, gameBoard);
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private boolean checkCellCollision(Cell cell) {
         PVector cellPosition = cell.getCenterPosition();

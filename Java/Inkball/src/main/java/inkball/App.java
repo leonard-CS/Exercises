@@ -30,11 +30,11 @@ public class App extends PApplet {
     public static Random random = new Random();
 	
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
-
     private GameBoard gameBoard;
     private Line currentLine;
 
     private int currentLevelIndex = 0;
+    private JSONObject config;
 
     public App() {
         this.configPath = "config.json";
@@ -64,14 +64,13 @@ public class App extends PApplet {
 
         frameRate(FPS);
         // Load the JSON configuration file
-        JSONObject config = loadJSONObject(configPath);
+        config = loadJSONObject(configPath);
         // For debugging, print out the JSON object
         // println(config);
-
-        startLevel(config);
+        startLevel();
     }
 
-    private void startLevel(JSONObject config) {
+    private void startLevel() {
         gameBoard = new GameBoard(this, BOARD_HEIGHT - 2, BOARD_WIDTH, currentLevelIndex, config);
     }
 
@@ -95,6 +94,9 @@ public class App extends PApplet {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (!gameBoard.hasGameStart()) {
+            gameBoard.start();
+        }
         // create a new player-drawn line object
         currentLine = new Line(mouseX, mouseY);
         gameBoard.addLines(currentLine);
