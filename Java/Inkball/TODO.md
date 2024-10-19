@@ -19,7 +19,7 @@
 ## Player Interaction
 - [x] Players can draw lines in the game with the left mouse button, which are black and have a thickness of 10 units.
 - [x] Players can remove drawn lines with the right mouse button or alternatively ctrl+left click.
-- [ ] Player-drawn lines have a hitbox that reflects balls based on the normal vector of the line segment that’s hit. When a collision occurs, they are removed.
+- [x] Player-drawn lines have a hitbox that reflects balls based on the normal vector of the line segment that’s hit. When a collision occurs, they are removed.
 
 ## Ball and Hole Mechanics
 - [ ] When a ball comes close to a hole, it is attracted towards it with a force proportional to how close it is.

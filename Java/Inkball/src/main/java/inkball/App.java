@@ -1,7 +1,6 @@
 package inkball;
 
 import processing.core.PApplet;
-import processing.data.JSONArray;
 import processing.data.JSONObject;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
@@ -74,16 +73,6 @@ public class App extends PApplet {
 
     private void startLevel(JSONObject config) {
         gameBoard = new GameBoard(this, BOARD_HEIGHT - 2, BOARD_WIDTH, currentLevelIndex, config);
-    }
-
-    private void printLevelInfo(String layout, int levelTime, int levelSpawnInterval, float levelScoreIncreaseModifier, float levelScoreDecreaseModifier, JSONArray balls) {
-        println("Level " + (currentLevelIndex + 1) + ":");
-        println("  Layout: " + layout);
-        println("  Time: " + levelTime);
-        println("  Spawn Interval: " + levelSpawnInterval);
-        println("  Score Increase Modifier: " + levelScoreIncreaseModifier);
-        println("  Score Decrease Modifier: " + levelScoreDecreaseModifier);
-        println("  Balls: " + balls.join(", "));
     }
 
     /**
@@ -162,23 +151,23 @@ public class App extends PApplet {
 
     private void drawTopBar() {
         fill(0);
-        rect(CELLSIZE/2, CELLSIZE/2, CELLSIZE*5, CELLSIZE);
+        rect((float) CELLSIZE / 2, (float) CELLSIZE / 2, CELLSIZE * 5, CELLSIZE);
 
         textSize(28);
         if (gameBoard.isPaused()) {
             textAlign(CENTER, CENTER);
-            text("*** PAUSED ***", WIDTH/2, TOPBAR/2);
+            text("*** PAUSED ***", (float) WIDTH / 2, (float) TOPBAR / 2);
         }
 
         // Draw Score
         textSize(24);
         textAlign(RIGHT, TOP);
         String scoreMessage = String.format("Score: %4d", gameBoard.getScore());
-        text(scoreMessage, WIDTH - CELLSIZE/2, 0);
+        text(scoreMessage, WIDTH - (float) CELLSIZE / 2, 0);
 
         // Draw Main Timer
         String timeMessage = String.format("Time: %4d", gameBoard.getRemainingTime());
-        text(timeMessage, WIDTH - CELLSIZE/2, CELLSIZE);
+        text(timeMessage, WIDTH - (float) CELLSIZE / 2, CELLSIZE);
 
         // Draw Spawn Timer
         int spawnTime = gameBoard.getSpawnTime();

@@ -12,11 +12,11 @@ import processing.data.JSONArray;
 import processing.data.JSONObject;
 
 public class GameBoard {
-    private PApplet p;
+    private final PApplet p;
     public final int numRows;
     public final int numCols;
-    private Cell[][] board;
-    private ArrayList<EntryPointCell> spawners;
+    private final Cell[][] board;
+    private final ArrayList<EntryPointCell> spawners;
 
     private final int currentLevelIndex;
     private String layout;
@@ -32,7 +32,6 @@ public class GameBoard {
 
     private int levelTime;
     private int spawnInterval;
-    private long pauseStartTime = 0;
 
     private boolean isPaused = false;
 
@@ -264,6 +263,14 @@ public class GameBoard {
     // Getters and setters
     public Cell getCell(int r, int c) {
         return board[r][c];
+    }
+
+    public ArrayList<Line> getLines() {
+        return new ArrayList<>(lines);
+    }
+
+    public void removeLine(Line line) {
+        lines.remove(line);
     }
 
     public int getScore() {

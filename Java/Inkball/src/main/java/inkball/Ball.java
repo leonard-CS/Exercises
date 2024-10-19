@@ -26,7 +26,7 @@ public class Ball {
     }
 
     public void moveLeft(int pixels) {
-        position.x = position.x - pixels;
+        position.x -= pixels;
     }
 
     public void update(GameBoard gameBoard) {
@@ -36,12 +36,19 @@ public class Ball {
         for (int row = 0; row < gameBoard.numRows; row++) {
             for (int col = 0; col < gameBoard.numCols; col++) {
                 Cell cell = gameBoard.getCell(row, col);
-                if (cell instanceof WallCell) {
-                    if (checkCollision(cell)) {
-//                        velocity.set(0,0);
-                        handleCollision(cell);
-                    }
+                if (cell instanceof WallCell && checkCellCollision(cell)) {
+                    handleCellCollision(cell);
                 }
+            }
+        }
+
+        // Check for collisions with lines
+        for (Line line : gameBoard.getLines()) {
+            if (line.getPoints().size() < 2) {
+                continue;
+            }
+            if (checkLineCollision(line)) {
+                handleLineCollision(line, gameBoard);
             }
         }
 
@@ -54,13 +61,13 @@ public class Ball {
         }
     }
 
-    private boolean checkCollision(Cell cell) {
+    private boolean checkCellCollision(Cell cell) {
         PVector cellPosition = cell.getCenterPosition();
         float distance = PVector.dist(cellPosition, position);
-        return distance < RADIUS + App.CELLSIZE/2;
+        return distance < RADIUS + (float) App.CELLSIZE / 2;
     }
 
-    private void handleCollision(Cell cell) {
+    private void handleCellCollision(Cell cell) {
         float cellX = cell.getPosition().x;
         float cellY = cell.getPosition().y;
 
@@ -87,6 +94,32 @@ public class Ball {
             velocity.y = -velocity.y;
             position.y += velocity.y; // Move ball out of the cell
         }
+    }
+
+    private boolean checkLineCollision(Line line) {
+        PVector closestPoint = line.getClosestPointOnLine(position);
+        return PVector.dist(closestPoint, position) < RADIUS;
+    }
+
+    private void handleLineCollision(Line line, GameBoard gameBoard) {
+        // Bounce the ball off the line
+        int indexOfClosestSegment = line.getIndexOfClosestSegment(position);
+        PVector lineDir = PVector.sub(line.getPoints().get(indexOfClosestSegment), line.getPoints().get(indexOfClosestSegment + 1));
+        lineDir.normalize();
+
+        // Calculate the normal vector
+        PVector normal = new PVector(-lineDir.y, lineDir.x);
+
+        // Reflect the velocity
+        float dotProduct = velocity.dot(normal);
+        velocity.sub(PVector.mult(normal, 2 * dotProduct));
+
+        // Move the ball out of the line
+        PVector cloestPoint = line.getClosestPointOnLine(position);
+        float overlap = RADIUS - PVector.dist(position, cloestPoint);
+        position.add(PVector.mult(normal, overlap));
+
+        gameBoard.removeLine(line);
     }
 
     public void draw(PApplet p) {

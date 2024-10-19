@@ -1,6 +1,5 @@
 package inkball;
 
-import processing.core.PApplet;
 import processing.core.PImage;
 
 public class TileCell extends Cell {
