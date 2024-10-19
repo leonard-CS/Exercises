@@ -27,6 +27,10 @@ public class Ball {
         this.velocity = new PVector(randomV(), randomV());
     }
 
+    public PVector getPosition() {
+        return new PVector(position.x, position.y);
+    }
+
     public void setPosition(int x, int y) {
         position = new PVector(x, y);
     }
