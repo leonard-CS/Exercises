@@ -36,7 +36,7 @@
   - [x] Remaining time gets added to the player’s score at a rate of 1 unit every 0.067 seconds.
   - [x] Yellow tiles originating in the top left corner and bottom right corner move around the edge of the game board in a clockwise direction at a rate of 1 tile every 0.067 seconds.
 - [x] When the level ends in a win, the next level is loaded.
-- [ ] When the level timer reaches 0, the level ends in a loss, meaning balls stop moving and the player can no longer draw lines. Display `=== TIME’S UP ===` in the top bar.
+- [x] When the level timer reaches 0, the level ends in a loss, meaning balls stop moving and the player can no longer draw lines. Display `=== TIME’S UP ===` in the top bar.
 - [x] The player can press ‘r’ to restart a level at any time, including when time has run out.
 - [x] Once the game has ended, a player can restart the game by pressing ‘r’.
 

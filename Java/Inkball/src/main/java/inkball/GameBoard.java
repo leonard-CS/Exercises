@@ -29,10 +29,9 @@ public class GameBoard {
 
     private boolean gameStart = false;
 
-    // Times
+    // Timing
     private long gameStartTime;
     private long elapsed_time = 0;
-
     private int levelTime;
     private int spawnInterval;
 
@@ -45,6 +44,7 @@ public class GameBoard {
     // Game Control
     private boolean win = false;
     private boolean isPaused = false;
+    private boolean timesup = false;
 
     // Scores
     private int score = 0;
@@ -64,14 +64,22 @@ public class GameBoard {
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = new Cell[numRows][numCols];
-
         this.currentLevelIndex = currentLevelIndex;
 
-        loadBallImages();
+        loadImages();
         loadLevelConfig(config);
+        initializeBoard(layout);
+    }
 
-        loadTileImages();
-        createBoard(layout);
+    private void loadImages() {
+        entryPointImage = p.loadImage("src/main/resources/inkball/entrypoint.png");
+        tileImage = p.loadImage("src/main/resources/inkball/tile.png");
+
+        for (int i = 0; i < NUM_IMAGES; i++) {
+            holeImages[i] = p.loadImage("src/main/resources/inkball/hole" + i + ".png");
+            wallImages[i] = p.loadImage("src/main/resources/inkball/wall" + i + ".png");
+            ballsImages[i] = p.loadImage("src/main/resources/inkball/ball" + i + ".png");
+        }
     }
 
     private void loadLevelConfig(JSONObject config) {
@@ -81,13 +89,12 @@ public class GameBoard {
         layout = currentLevel.getString("layout");
         levelTime = currentLevel.getInt("time");
         spawnInterval = currentLevel.getInt("spawn_interval");
+
+        loadBalls(currentLevel.getJSONArray("balls"));
+
+        // Load score modifiers
         float levelScoreIncreaseModifier = currentLevel.getFloat("score_increase_from_hole_capture_modifier");
         float levelScoreDecreaseModifier = currentLevel.getFloat("score_decrease_from_wrong_hole_modifier");
-
-        JSONArray ballsConfig = currentLevel.getJSONArray("balls");
-        loadBalls(ballsConfig);
-
-        // Load score increases/decreases
         String[] ballColors = {"grey", "orange", "blue", "green", "yellow"};
         JSONObject scoreIncreasesConfig = config.getJSONObject("score_increase_from_hole_capture");
         JSONObject scoreDecreasesConfig = config.getJSONObject("score_decrease_from_wrong_hole");
@@ -98,18 +105,8 @@ public class GameBoard {
         }
     }
 
-    private void loadTileImages() {
-        entryPointImage = p.loadImage("src/main/resources/inkball/entrypoint.png");
-        tileImage = p.loadImage("src/main/resources/inkball/tile.png");
-
-        for (int i = 0; i < NUM_IMAGES; i++) {
-            holeImages[i] = p.loadImage("src/main/resources/inkball/hole" + i + ".png");
-            wallImages[i] = p.loadImage("src/main/resources/inkball/wall" + i + ".png");
-        }
-    }
-
-    private void createBoard(String layout) {
-        initializeBoardWithTiles();
+    private void initializeBoard(String layout) {
+        fillBoardWithTiles();
         try (BufferedReader br = new BufferedReader(new FileReader(layout))) {
             for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
                 String line = br.readLine();
@@ -119,6 +116,16 @@ public class GameBoard {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void fillBoardWithTiles() {
+        for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
+            for (int colIndex = 0; colIndex < numCols; colIndex++) {
+                int x = colIndex * App.CELLSIZE;
+                int y = rowIndex * App.CELLSIZE + App.TOPBAR;
+                board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
+            }
         }
     }
 
@@ -141,7 +148,6 @@ public class GameBoard {
                     colIndex++; // Skip the next index as it's part of the hole
                     break;
                 case 'B':
-//                    board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
                     colIndex++; // Skip the next index as it's part of a tile
                     break;
                 default:
@@ -168,16 +174,6 @@ public class GameBoard {
         board[rowIndex + 1][colIndex + 1] = null;
     }
 
-    private void initializeBoardWithTiles() {
-        for (int rowIndex = 0; rowIndex < numRows; rowIndex++) {
-            for (int colIndex = 0; colIndex < numCols; colIndex++) {
-                int x = colIndex * App.CELLSIZE;
-                int y = rowIndex * App.CELLSIZE + App.TOPBAR;
-                board[rowIndex][colIndex] = new TileCell(tileImage, x, y);
-            }
-        }
-    }
-
     public void draw() {
         // Draw cells
         for (int row = 0; row < numRows; row++) {
@@ -201,8 +197,8 @@ public class GameBoard {
             ball.draw(p);
         }
 
-        if (!isPaused) {
-            update();
+        if (!isPaused && !timesup) {
+            updateGame();
         }
 
         if (win) {
@@ -211,20 +207,21 @@ public class GameBoard {
         }
     }
 
-    public void update() {
+    private void updateGame() {
         if (getSpawnTime() == 1 && !waitingBalls.isEmpty() && waitingBallUpdateCount == 0) {
             Ball ballToJoin = waitingBalls.remove(0);
             waitingBallUpdateCount = App.CELLSIZE;
             ballToJoin.start(getBallSpawnPosition());
             runningBalls.add(ballToJoin);
         }
+        // Move waiting balls left 1px/frame
         if (waitingBallUpdateCount != 0) {
-            // Move waiting balls left 1px/frame
             for (Ball ball : waitingBalls) {
                 ball.moveLeft(1);
             }
             waitingBallUpdateCount--;
         }
+        // Update running balls
         if (!runningBalls.isEmpty()) {
             for (Ball ball : new ArrayList<>(runningBalls)) {
                 ball.update(this);
@@ -235,6 +232,10 @@ public class GameBoard {
             long delta_time = p.millis() - gameStartTime;
             elapsed_time += delta_time;
             gameStartTime = p.millis();
+        }
+
+        if (getRemainingTime() <= 0) {
+            timesup = true;
         }
 
         if (checkWinCondition() && !win) {
@@ -257,13 +258,13 @@ public class GameBoard {
         }
     }
 
-    public boolean checkWinCondition() {
+    private boolean checkWinCondition() {
         return waitingBalls.isEmpty() && runningBalls.isEmpty();
     }
 
-    public void addScoreForRemainingTime() {
+    private void addScoreForRemainingTime() {
         int remainingTime = getRemainingTime();
-        int scoreToAdd = (int)(remainingTime / 0.067); // 1 unit every 0.067 seconds
+        int scoreToAdd = (int) (remainingTime / 0.067); // 1 unit every 0.067 seconds
         score += scoreToAdd;
     }
 
@@ -299,12 +300,6 @@ public class GameBoard {
     }
 
     // Balls
-    private void loadBallImages() {
-        for (int i = 0; i < NUM_IMAGES; i++) {
-            ballsImages[i] = p.loadImage("src/main/resources/inkball/ball" + i + ".png");
-        }
-    }
-
     private void loadBalls(JSONArray ballsConfig) {
         for (int i = 0; i < ballsConfig.size(); i ++) {
             String color = ballsConfig.getString(i);
@@ -386,6 +381,10 @@ public class GameBoard {
 
     public boolean isPaused() {
         return isPaused;
+    }
+
+    public boolean isTimesUp() {
+        return timesup;
     }
 
     public PImage getBallImage(int i) {

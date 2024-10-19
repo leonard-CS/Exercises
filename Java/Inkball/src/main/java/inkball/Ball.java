@@ -7,9 +7,9 @@ import processing.core.PVector;
 import static processing.core.PApplet.map;
 
 public class Ball {
-    private static final float RADIUS = App.CELLSIZE * 0.5f * 0.75f;
+    private static final float DEFAULT_RADIUS = App.CELLSIZE * 0.5f * 0.75f;
     private static final float MIN_RADIUS = 8;
-    private float currentRadius = RADIUS;
+    private float currentRadius = DEFAULT_RADIUS;
     private PImage image;
     private Color color;
     private PVector position;
@@ -50,14 +50,6 @@ public class Ball {
 
         // Check for attraction to holes
         checkHoleAttractions(gameBoard);
-
-        // Ensure the ball stays within the screen bounds
-        if (position.x < RADIUS || position.x > App.WIDTH - RADIUS) {
-            velocity.x = -velocity.x;
-        }
-        if (position.y < RADIUS || position.y > App.HEIGHT - RADIUS) {
-            velocity.y = -velocity.y;
-        }
     }
 
     private void checkCellCollisions(GameBoard gameBoard) {
@@ -74,6 +66,7 @@ public class Ball {
     private void checkLineCollisions(GameBoard gameBoard) {
         for (Line line : gameBoard.getLines()) {
             if (line.getPoints().size() < 2) {
+                gameBoard.removeLine(line);
                 continue;
             }
             if (checkLineCollision(line)) {
@@ -92,8 +85,8 @@ public class Ball {
                 velocity.add(attractionForce);
 
                 // Calculate size reduction based on distance to hole
-                float sizeReduction = map(distanceToHole, 0, App.CELLSIZE, 0, RADIUS - MIN_RADIUS);
-                currentRadius = RADIUS - sizeReduction;
+                float sizeReduction = map(distanceToHole, 0, App.CELLSIZE, 0, DEFAULT_RADIUS - MIN_RADIUS);
+                currentRadius = DEFAULT_RADIUS - sizeReduction;
 
                 // Check if the ball is captured by the hole
                 if (distanceToHole < currentRadius) {
@@ -104,13 +97,13 @@ public class Ball {
             }
         }
         // Reset currentRadius if not near any hole
-        currentRadius = RADIUS;
+        currentRadius = DEFAULT_RADIUS;
     }
 
     private boolean checkCellCollision(Cell cell) {
         PVector cellPosition = cell.getCenterPosition();
         float distance = PVector.dist(cellPosition, position);
-        return distance < RADIUS + (float) App.CELLSIZE / 2;
+        return distance < DEFAULT_RADIUS + (float) App.CELLSIZE / 2;
     }
 
     private void handleCellCollision(WallCell cell, GameBoard gameBoard) {
@@ -127,15 +120,15 @@ public class Ball {
         float overlapY = 0;
 
         if (position.x < cellX) {
-            overlapX = (cellX - position.x) + RADIUS;
+            overlapX = (cellX - position.x) + DEFAULT_RADIUS;
         } else if (position.x > cellX + Cell.CELLSIZE) {
-            overlapX = (position.x - (cellX + Cell.CELLSIZE)) + RADIUS;
+            overlapX = (position.x - (cellX + Cell.CELLSIZE)) + DEFAULT_RADIUS;
         }
 
         if (position.y < cellY) {
-            overlapY = (cellY - position.y) + RADIUS;
+            overlapY = (cellY - position.y) + DEFAULT_RADIUS;
         } else if (position.y > cellY + Cell.CELLSIZE) {
-            overlapY = (position.y - (cellY + Cell.CELLSIZE)) + RADIUS;
+            overlapY = (position.y - (cellY + Cell.CELLSIZE)) + DEFAULT_RADIUS;
         }
 
         // Resolve the collision based on the smallest overlap
@@ -154,7 +147,7 @@ public class Ball {
 
     private boolean checkLineCollision(Line line) {
         PVector closestPoint = line.getClosestPointOnLine(position);
-        return PVector.dist(closestPoint, position) < RADIUS;
+        return PVector.dist(closestPoint, position) < DEFAULT_RADIUS;
     }
 
     private void handleLineCollision(Line line, GameBoard gameBoard) {
@@ -171,8 +164,8 @@ public class Ball {
         velocity.sub(PVector.mult(normal, 2 * dotProduct));
 
         // Move the ball out of the line
-        PVector cloestPoint = line.getClosestPointOnLine(position);
-        float overlap = RADIUS - PVector.dist(position, cloestPoint);
+        PVector closestPoint = line.getClosestPointOnLine(position);
+        float overlap = DEFAULT_RADIUS - PVector.dist(position, closestPoint);
         position.add(PVector.mult(normal, overlap));
 
         gameBoard.removeLine(line);
@@ -187,7 +180,7 @@ public class Ball {
         } else {
             // Decrease score
             gameBoard.decreaseScore(color); // Assuming this method exists
-            currentRadius = RADIUS; // Reset radius
+            currentRadius = DEFAULT_RADIUS; // Reset radius
             gameBoard.resetBall(this);
         }
     }

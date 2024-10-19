@@ -73,6 +73,7 @@ public class App extends PApplet {
         JSONArray levels = config.getJSONArray("levels");
         if (currentLevelIndex >= levels.size()) {
             displayWinMessage();
+            currentLevelIndex = 0;
         } else {
             // Start next level
             startLevel();
@@ -154,9 +155,12 @@ public class App extends PApplet {
         rect(CELLSIZE / 2.0f, CELLSIZE / 2.0f, CELLSIZE * 5, CELLSIZE);
 
         textSize(28);
+        textAlign(CENTER, CENTER);
         if (gameBoard.isPaused()) {
-            textAlign(CENTER, CENTER);
             text("*** PAUSED ***", WIDTH / 2.0f, TOPBAR / 2.0f);
+        }
+        if (gameBoard.isTimesUp()) {
+            text("=== TIME’S UP ===", App.WIDTH / 2.0f, App.TOPBAR / 2.0f);
         }
 
         // Draw Score
