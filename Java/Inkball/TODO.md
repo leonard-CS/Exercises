@@ -31,7 +31,7 @@
 - [ ] Score changes correctly when balls are captured successfully or unsuccessfully, based on the colour of the ball and the score values specified in the config file, including the level multiplier.
 
 ## Game State and Controls
-- [ ] Spacebar causes the game to pause, and the top bar displays `*** PAUSED ***`.
+- [x] Spacebar causes the game to pause, and the top bar displays `*** PAUSED ***`.
 - [ ] The current level ends in a win when no balls remain to be spawned, and no balls are currently on the game board.
   - [ ] Remaining time gets added to the player’s score at a rate of 1 unit every 0.067 seconds.
   - [ ] Yellow tiles originating in the top left corner and bottom right corner move around the edge of the game board in a clockwise direction at a rate of 1 tile every 0.067 seconds.

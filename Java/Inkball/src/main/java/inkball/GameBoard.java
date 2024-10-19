@@ -22,13 +22,19 @@ public class GameBoard {
     private String layout;
 
     private int waitingBallUpdateCount = 0;
-    private final ArrayList<Ball> waitingBalls;
-    private final ArrayList<Ball> runningBalls;
+    private final ArrayList<Ball> waitingBalls = new ArrayList<>();
+    private final ArrayList<Ball> runningBalls = new ArrayList<>();
+    private final ArrayList<Line> lines = new ArrayList<>();
 
     // Times
-    public final long startTime;
+    private long gameStartTime;
+    private long elapsed_time = 0;
+
     private int levelTime;
     private int spawnInterval;
+    private long pauseStartTime = 0;
+
+    private boolean isPaused = false;
 
     // Scores
     private int score = 0;
@@ -49,10 +55,7 @@ public class GameBoard {
         this.spawners = new ArrayList<>();
 
         this.currentLevelIndex = currentLevelIndex;
-        this.startTime = p.millis();
-
-        waitingBalls = new ArrayList<>();
-        runningBalls = new ArrayList<>();
+        this.gameStartTime = p.millis();
 
         loadBallImages();
         loadLevelConfig(config);
@@ -163,6 +166,10 @@ public class GameBoard {
                 }
             }
         }
+        // Draw lines
+        for (Line line : lines) {
+            line.draw(p);
+        }
         // Draw waiting balls
         for (int i = 0; i < waitingBalls.size() && i < 5; i++) {
             waitingBalls.get(i).draw(p);
@@ -170,6 +177,10 @@ public class GameBoard {
         // Draw running balls
         for (Ball ball : runningBalls) {
             ball.draw(p);
+        }
+
+        if (!isPaused) {
+            update();
         }
     }
 
@@ -192,11 +203,30 @@ public class GameBoard {
                 ball.update(this);
             }
         }
+        // Update Time
+        long delta_time = p.millis() - gameStartTime;
+        elapsed_time += delta_time;
+        gameStartTime = p.millis();
     }
 
     private PVector getBallSpawnPosition() {
         int index = App.random.nextInt(spawners.size());
         return spawners.get(index).getCenterPosition();
+    }
+
+    // Lines
+    public void addLines(Line line) {
+        lines.add(line);
+    }
+
+    public void removeCollidingLine(int mouseX, int mouseY) {
+        // Loop through all lines to check for collision
+        for (Line line : lines) {
+            if (line.isMouseNear(mouseX, mouseY)) {
+                lines.remove(line);
+                break;
+            }
+        }
     }
 
     // Balls
@@ -240,24 +270,20 @@ public class GameBoard {
         return score;
     }
 
-    public int getLevelTime() {
-        return levelTime;
-    }
-
-    public int getSpawnInterval() {
-        return spawnInterval;
-    }
-
-    public long getElapsedTime() {
-        return p.millis() - startTime;
-    }
-
     public int getRemainingTime() {
-        return levelTime - (int)(getElapsedTime() / 1000);
+        return levelTime - (int)(elapsed_time / 1000);
     }
 
     public int getSpawnTime() {
-        int spawnInterval = getSpawnInterval() * 10;
-        return spawnInterval - (int) ((getElapsedTime() / 100) % spawnInterval);
+        int adjustedSpawnInterval = spawnInterval * 10;
+        return adjustedSpawnInterval - (int) ((elapsed_time / 100) % adjustedSpawnInterval);
+    }
+
+    public void togglePauseState() {
+        isPaused = !isPaused;
+    }
+
+    public boolean isPaused() {
+        return isPaused;
     }
 }

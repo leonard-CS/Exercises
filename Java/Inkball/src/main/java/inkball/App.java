@@ -33,7 +33,6 @@ public class App extends PApplet {
 	// Feel free to add any additional methods or attributes you want. Please put classes in different files.
 
     private GameBoard gameBoard;
-    private ArrayList<Line> lines;
     private Line currentLine;
 
     private int currentLevelIndex = 0;
@@ -71,8 +70,6 @@ public class App extends PApplet {
         // println(config);
 
         startLevel(config);
-
-        lines = new ArrayList<>();
     }
 
     private void startLevel(JSONObject config) {
@@ -94,7 +91,9 @@ public class App extends PApplet {
      */
 	@Override
     public void keyPressed(KeyEvent event){
-        
+        if (event.getKeyCode() == ' ') {
+            gameBoard.togglePauseState();
+        }
     }
 
     /**
@@ -109,7 +108,7 @@ public class App extends PApplet {
     public void mousePressed(MouseEvent e) {
         // create a new player-drawn line object
         currentLine = new Line(mouseX, mouseY);
-        lines.add(currentLine);
+        gameBoard.addLines(currentLine);
     }
 	
 	@Override
@@ -124,17 +123,7 @@ public class App extends PApplet {
 		// remove player-drawn line object if right mouse button is held 
 		// and mouse position collides with the line
         if (e.getButton() == RIGHT || (e.getButton() == LEFT && e.isControlDown())) {
-            removeCollidingLine(mouseX, mouseY);
-        }
-    }
-
-    private void removeCollidingLine(int mouseX, int mouseY) {
-        // Loop through all lines to check for collision
-        for (Line line : lines) {
-            if (line.isMouseNear(mouseX, mouseY)) {
-                lines.remove(line);
-                break;
-            }
+            gameBoard.removeCollidingLine(mouseX, mouseY);
         }
     }
 
@@ -155,14 +144,10 @@ public class App extends PApplet {
         //----------------------------------
         drawTopBar();
         gameBoard.draw();
-        gameBoard.update();
 
         //----------------------------------
         //display lines
         //----------------------------------
-        for (Line line : lines) {
-            line.draw(this);
-        }
 
         // ----------------------------------
         //display score
@@ -178,6 +163,12 @@ public class App extends PApplet {
     private void drawTopBar() {
         fill(0);
         rect(CELLSIZE/2, CELLSIZE/2, CELLSIZE*5, CELLSIZE);
+
+        textSize(28);
+        if (gameBoard.isPaused()) {
+            textAlign(CENTER, CENTER);
+            text("*** PAUSED ***", WIDTH/2, TOPBAR/2);
+        }
 
         // Draw Score
         textSize(24);
