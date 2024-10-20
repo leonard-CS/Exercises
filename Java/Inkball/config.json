@@ -2,8 +2,8 @@
   "levels": [
     {
       "layout": "level0.txt",
-      "time": 120,
-      "spawn_interval": 10,
+      "time": 200,
+      "spawn_interval": 15,
       "score_increase_from_hole_capture_modifier": 1.0,
       "score_decrease_from_wrong_hole_modifier": 1.0,
       "balls": ["blue", "orange", "grey", "blue", "green", "yellow"]

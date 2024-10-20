@@ -1,8 +1,8 @@
 XXXXXXXX22XXXXXXXX
 X     WI        SX
-X     WI         X
+X  B2 WI         X
 X  B0 WI         X
-X     WI     B2  X
+X  B1 WI     B2  X
 X     WI         X
 XWWWWWWI         X
 XOOOOOOXH1       1
@@ -12,7 +12,7 @@ X      XXXXIIIIIIX
 2         XW     X
 X         OW     X
 X         OW     X
-X   B1    OW     X
+X   B1    OW   B2X
 X         OW   B0X
-XS        OW     X
+XS        OW   B1X
 XXXXXXXX11XXXXXXXX
