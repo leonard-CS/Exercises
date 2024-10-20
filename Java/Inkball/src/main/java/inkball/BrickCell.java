@@ -17,6 +17,14 @@ public class BrickCell extends Cell{
         return color;
     }
 
+    public int getLife() {
+        return life;
+    }
+
+    public void hit() {
+        life -= 1;
+    }
+
     @Override
     public void draw(PApplet pApplet) {
         pApplet.image(images[1], getPosition().x, getPosition().y, CELLSIZE, CELLSIZE);

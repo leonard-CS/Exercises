@@ -60,8 +60,8 @@ public class Ball {
         for (int row = 0; row < gameBoard.numRows; row++) {
             for (int col = 0; col < gameBoard.numCols; col++) {
                 Cell cell = gameBoard.getCell(row, col);
-                if (cell instanceof WallCell && checkCellCollision(cell)) {
-                    handleCellCollision((WallCell) cell, gameBoard);
+                if ((cell instanceof WallCell || cell instanceof BrickCell) && checkCellCollision(cell)) {
+                    handleCellCollision(cell, gameBoard);
                 }
             }
         }
@@ -110,11 +110,14 @@ public class Ball {
         return distance < DEFAULT_RADIUS + (float) App.CELLSIZE / 2;
     }
 
-    private void handleCellCollision(WallCell cell, GameBoard gameBoard) {
-        // Change ball color
-        if (cell.getColor() != Color.GREY) {
-            color = cell.getColor();
-            changeImage(gameBoard);
+    private void handleCellCollision(Cell cell, GameBoard gameBoard) {
+        if (cell instanceof WallCell) {
+            // Change ball color
+            WallCell wallCell = (WallCell) cell;
+            if (wallCell.getColor() != Color.GREY) {
+                color = wallCell.getColor();
+                changeImage(gameBoard);
+            }
         }
 
         float cellX = cell.getPosition().x;
@@ -142,6 +145,19 @@ public class Ball {
         } else {
             velocity.y = -velocity.y;
             position.y += velocity.y; // Move ball out of the cell
+        }
+
+        if (cell instanceof BrickCell) {
+            BrickCell brickCell = (BrickCell) cell;
+            if (brickCell.getColor() == color || brickCell.getColor() == Color.GREY) {
+                brickCell.hit();
+            }
+            if (brickCell.getLife() < 0) {
+                PVector position = brickCell.getPosition();
+                int row = (int) ((position.y - App.TOPBAR) / App.CELLSIZE);
+                int col = (int) (position.x / App.CELLSIZE);
+                gameBoard.setTile(row, col);
+            }
         }
     }
 

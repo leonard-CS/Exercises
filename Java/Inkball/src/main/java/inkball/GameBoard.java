@@ -363,6 +363,12 @@ public class GameBoard {
         return board[r][c];
     }
 
+    public void setTile(int row, int col) {
+        int x = col * App.CELLSIZE;
+        int y = row * App.CELLSIZE + App.TOPBAR;
+        board[row][col] = new TileCell(tileImage, x, y);
+    }
+
     public ArrayList<Line> getLines() {
         return new ArrayList<>(lines);
     }
