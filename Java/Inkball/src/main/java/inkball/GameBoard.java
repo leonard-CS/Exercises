@@ -60,12 +60,13 @@ public class GameBoard {
     private final PImage[] bricksImages = new PImage[NUM_IMAGES];
     private final PImage[] ballsImages = new PImage[NUM_IMAGES];
 
-    public GameBoard(PApplet p, int numRows, int numCols, int currentLevelIndex, JSONObject config) {
+    public GameBoard(PApplet p, int numRows, int numCols, int currentLevelIndex, JSONObject config, int score) {
         this.p = p;
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = new Cell[numRows][numCols];
         this.currentLevelIndex = currentLevelIndex;
+        this.score = score;
 
         loadImages();
         loadLevelConfig(config);
@@ -153,7 +154,7 @@ public class GameBoard {
                     colIndex++; // Skip the next index as it's part of a tile
                     int ballType = line.charAt(colIndex) - '0';
                     int offset = App.CELLSIZE / 2;
-                    Ball ball = new Ball(x - offset, y - offset, ballsImages[ballType], Color.fromValue(ballType));
+                    Ball ball = new Ball(x + offset, y + offset, ballsImages[ballType], Color.fromValue(ballType));
                     ball.start(ball.getPosition());
                     runningBalls.add(ball);
                     break;
@@ -282,7 +283,7 @@ public class GameBoard {
                 lastMoveTime = currentTime;
             }
             if (p.millis() - winTime >= 4.556 * 1000) {
-                ((App) p).nextLevel();
+                ((App) p).nextLevel(score);
             }
         }
     }
