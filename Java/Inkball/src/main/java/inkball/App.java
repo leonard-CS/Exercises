@@ -28,6 +28,7 @@ public class App extends PApplet {
     private GameBoard gameBoard;
     private int currentLevelIndex = 0;
     private Line currentLine;
+    private int score;
 
     public App() {
         this.configPath = "config.json";
@@ -58,14 +59,14 @@ public class App extends PApplet {
         frameRate(FPS);
         // Load the JSON configuration file
         config = loadJSONObject(configPath);
-        startLevel();
+        startLevel(0);
     }
 
-    private void startLevel() {
-        gameBoard = new GameBoard(this, BOARD_HEIGHT - 2, BOARD_WIDTH, currentLevelIndex, config);
+    private void startLevel(int score) {
+        gameBoard = new GameBoard(this, BOARD_HEIGHT - 2, BOARD_WIDTH, currentLevelIndex, config, score);
     }
 
-    public void nextLevel() {
+    public void nextLevel(int score) {
         // Increment the current level index
         currentLevelIndex++;
 
@@ -76,7 +77,8 @@ public class App extends PApplet {
             currentLevelIndex = 0;
         } else {
             // Start next level
-            startLevel();
+            this.score = score;
+            startLevel(score);
         }
     }
 
@@ -96,7 +98,7 @@ public class App extends PApplet {
             gameBoard.togglePauseState();
         }
         if (event.getKey() == 'r' || event.getKey() == 'R') {
-            startLevel();
+            startLevel(score);
         }
     }
 
